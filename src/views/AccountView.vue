@@ -1,0 +1,109 @@
+<script setup>
+import { RouterLink } from 'vue-router'
+</script>
+
+<template>
+<div class="content">
+  <div class="container info">
+    <h2>Мои данные</h2>
+    <div class="pair">
+      <div class="property">{{ $t(`fields.login.label`) }}</div>
+      <div class="value">SharpRainbow</div>
+      <md-icon>chevron_right</md-icon>
+    </div>
+    <div class="pair">
+      <div class="property">{{ $t(`fields.email.label`) }}</div>
+      <div class="value">panin.lesha2112@yandex.ru</div>
+      <RouterLink to="/account/email">
+        <md-icon>chevron_right</md-icon>
+      </RouterLink>
+    </div>
+    <div class="pair">
+      <div class="property">{{ $t(`fields.displayName.label`) }}</div>
+      <div class="value">Shrp</div>
+      <RouterLink to="/account/displayName">
+        <md-icon>chevron_right</md-icon>
+      </RouterLink>
+    </div>
+  </div>
+  <md-filled-button>{{ $t(`buttons.exit`) }}</md-filled-button>
+</div>
+</template>
+
+<style scoped>
+
+md-filled-button {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 16px;
+}
+
+h2 {
+  margin: 0 0 16px;
+}
+
+.content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 16px;
+}
+
+.container {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  border: 1px solid var(--secondary-color);
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+.pair {
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  display: flex;
+  gap: 12px;
+}
+
+.pair:not(:nth-child(2)) {
+  padding-top: 8px;
+  border-top: 1px solid var(--secondary-color);
+}
+
+.value {
+  flex-grow: 1;
+  font-size: 16px;
+}
+
+.property {
+  /*min-width: fit-content;*/
+  font-size: 12px;
+  min-width: 200px;
+}
+
+@media screen and (max-width: 480px){
+
+  h2 {
+    font-size: 16px;
+  }
+
+  .pair {
+    position: relative;
+    gap: 4px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pair md-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+}
+
+</style>

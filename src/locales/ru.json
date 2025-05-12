@@ -1,0 +1,35 @@
+{
+  "fields": {
+    "login": {
+      "label": "Логин",
+      "placeholder": "SharpRainbow"
+    },
+    "email": {
+      "label": "Электронная почта",
+      "placeholder": "example@yandex.ru",
+      "note": "Как будет использоваться эта информация",
+      "description": "Адрес электронной почты используется для связи и рассылок."
+    },
+    "displayName": {
+      "label": "Псевдоним",
+      "placeholder": "Shrp",
+      "note": "Кто может видеть ваш псевдоним",
+      "description": "Ваш псевдоним будет виден другим пользователям при просмотре написанных вами рецензий."
+    },
+    "password": {
+      "label": "Пароль"
+    }
+  },
+  "labels": {
+    "personalInfo": "Мои данные"
+  },
+  "buttons": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "exit": "Выйти",
+    "add": "Добавить",
+    "rate": "Оценить",
+    "login": "Вход",
+    "register": "Регистрация"
+  }
+}

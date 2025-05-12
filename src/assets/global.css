@@ -1,0 +1,50 @@
+:root {
+    --primary-color: #80CAFF;
+    --secondary-color: #272D36;
+    --focus-color: #3C4858;
+    --background-color: #191C20;
+    --text-color: #EEF0F2;
+    --icon-color: #AED1FF;
+}
+
+* {
+    --md-icon-font: 'Material Symbols Rounded';
+    color: var(--text-color);
+    color-scheme: dark;
+}
+
+md-icon {
+    color: var(--icon-color);
+}
+
+md-filled-button {
+    --md-sys-color-primary: var(--icon-color);
+    --md-sys-color-on-primary: var(--secondary-color);
+    --md-filled-button-disabled-container-color: var(--icon-color);
+    --md-filled-button-disabled-label-text-color: var(--text-color);
+}
+
+md-filled-button md-icon {
+    color: var(--secondary-color);
+}
+
+md-outlined-text-field {
+    --md-outlined-text-field-hover-input-text-color: var(--text-color);
+    --md-outlined-text-field-focus-input-text-color: var(--text-color);
+    --md-outlined-text-field-input-text-color: var(--text-color);
+    --md-outlined-text-field-label-text-color: var(--text-color);
+    --md-outlined-text-field-hover-label-text-color: var(--text-color);
+    --md-outlined-text-field-hover-outline-color: var(--primary-color);
+    --md-sys-color-primary: var(--primary-color);
+}
+
+md-text-button {
+    --md-text-button-label-text-color: var(--icon-color);
+    --md-text-button-focus-label-text-color: var(--icon-color);
+    --md-text-button-pressed-label-text-color: var(--icon-color);
+    --md-text-button-hover-label-text-color: var(--icon-color);
+}
+
+body {
+    margin: 0
+}
