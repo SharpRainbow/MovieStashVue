@@ -19,6 +19,7 @@ const router = createRouter({
     },
     {
       path: '/content/:id',
+      props: true,
       name: 'content',
       component: () => import('../views/ContentView.vue'),
     },
@@ -50,6 +51,11 @@ const router = createRouter({
     {
       path: '/collections',
       component: () => import('../views/CollectionsView.vue'),
+    },
+    {
+      path: '/collection/:id',
+      props: true,
+      component: () => import('../views/CollectionContentView.vue'),
     }
   ],
 })

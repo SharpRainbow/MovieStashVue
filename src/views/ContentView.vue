@@ -7,6 +7,7 @@ import 'swiper/css/navigation'
 
 const personItems = ref([])
 const dialogRef = ref(null)
+const props = defineProps(['id'])
 
 function showDialog() {
   dialogRef.value.show()
@@ -32,7 +33,7 @@ onMounted(() => {
         <img id="poster" src="/src/assets/images/placeholder.jpg" alt="poster">
       </div>
       <div class="content-container">
-        <h1 id="content-name">Название</h1>
+        <h1 id="content-name">{{ `Название ${props.id}` }}</h1>
         <div id="rating-values" class="horizontal-container">
           <div class="rating">
             <div id="rt-kp">8.0</div>

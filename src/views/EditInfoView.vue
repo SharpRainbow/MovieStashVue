@@ -28,7 +28,7 @@ function goBack() {
     <RouterLink to="/account" @click="goBack">
       <md-icon>chevron_left</md-icon>
     </RouterLink>
-    <h2>{{ $t(`fields.${property}.label`) }}</h2>
+    <h2>{{ $t(`fields.${props.property}.label`) }}</h2>
   </div>
   </div>
   <div class="container">
@@ -37,8 +37,8 @@ function goBack() {
       :value="newValue"
       @input="onInput"
     />
-    <h4>{{ $t(`fields.${property}.note`) }}</h4>
-    <p>{{ $t(`fields.${property}.description`) }}</p>
+    <h4>{{ $t(`fields.${props.property}.note`) }}</h4>
+    <p>{{ $t(`fields.${props.property}.description`) }}</p>
     <div class="horizontal-container">
       <md-text-button>Отмена</md-text-button>
       <md-filled-button :disabled="isSavable">Сохранить</md-filled-button>

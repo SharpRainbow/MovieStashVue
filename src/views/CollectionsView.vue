@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import Pagination from '@/components/Pagination.vue'
+import { useRouter } from 'vue-router'
 
 const collections = ref([])
 const currentPage = ref(1)
 const totalPages = ref(5)
+const router = useRouter()
 
 function onPageChange(page) {
   console.log(page)
@@ -39,6 +41,7 @@ onMounted(() => {
       v-for="item in collections"
       :key="item.id"
       class="col"
+      @click="router.push(`/collection/${item.id}`)"
     >
       <div class="collection-container">
         <md-icon slot="icon">movie</md-icon>
