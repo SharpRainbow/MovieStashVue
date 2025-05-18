@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import ListItem from '@/components/ListItem.vue'
 
 const searchItems = ref([])
 
@@ -34,17 +35,14 @@ onMounted(() => {
     </md-tabs>
     <md-linear-progress id="load-indicator" indeterminate></md-linear-progress>
     <div class="results">
-          <div
-            v-for="item in searchItems"
-            :key="item.id"
-            class="search-result"
-          >
-            <img :src="item.src" alt="search-image">
-            <div class="search-result-body">
-              <h3>{{ item.name }}</h3>
-              <p>{{ item.date }}</p>
-            </div>
-          </div>
+      <ListItem
+        v-for="item in searchItems"
+        :key="item.id"
+        :name="item.name"
+        :date="item.date"
+        :image="item.src"
+      >
+      </ListItem>
     </div>
   </div>
 </template>
@@ -125,43 +123,6 @@ html, body {
   gap: 12px;
 }
 
-.category {
-  font-size: 14px;
-  color: #888;
-  margin: 15px 0 5px;
-  text-transform: uppercase;
-}
-
-.item {
-  font-size: 16px;
-  color: #fff;
-  margin: 5px 0;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.item:hover {
-  color: #1e90ff; /* Highlight color */
-}
-
-.search-result {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.search-result img {
-  height: 96px;
-  aspect-ratio: 10 / 15;
-  border-radius: 16px;
-  object-fit: fill;
-}
-
-/*.search-result-body {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*}*/
-
 @media screen and (max-device-width: 480px) {
   .results {
     margin: 10px 20px;
@@ -179,16 +140,5 @@ html, body {
     font-size: 20px;
   }
 
-  .search-result {
-    gap: 8px;
-  }
-
-  .search-result-body {
-    font-size: 12px;
-  }
-
-  .search-result img {
-    height: 80px;
-  }
 }
 </style>

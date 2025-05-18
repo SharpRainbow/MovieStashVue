@@ -1,5 +1,8 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 </script>
 
 <template>
@@ -26,7 +29,16 @@ import { RouterLink } from 'vue-router'
       </RouterLink>
     </div>
   </div>
-  <md-filled-button>{{ $t(`buttons.exit`) }}</md-filled-button>
+  <md-filled-button
+    @click="router.push(`/collections/personal`)"
+  >
+    {{ $t(`buttons.user_collections`) }}
+  </md-filled-button>
+  <md-filled-button
+    @click="router.replace(`/login`)"
+  >
+    {{ $t(`buttons.exit`) }}
+  </md-filled-button>
 </div>
 </template>
 

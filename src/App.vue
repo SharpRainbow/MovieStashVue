@@ -30,7 +30,7 @@ import '@material/web/all.js'
         </RouterLink>
       </div>
       <div class="right">
-        <RouterLink to="/login">
+        <RouterLink to="/news">
         <div class="nav-item">
           <div class="icon-container">
             <md-icon slot="icon">newsmode</md-icon>

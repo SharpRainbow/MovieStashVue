@@ -5,6 +5,8 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Mousewheel } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
+import NewsItem from '@/components/NewsItem.vue'
+import CollectionItem from '@/components/CollectionItem.vue'
 
 const contentItems = ref([])
 const collectionItems = ref([])
@@ -73,27 +75,26 @@ onMounted(() => {
       <SwiperSlide
         v-for="item in collectionItems"
         :key="item.id"
-        class="collection-container"
         @click="router.push(`/collection/${item.id}`)"
+        class="collection-container"
       >
-        <md-icon slot="icon">movie</md-icon>
-        <label>{{ item.name }}</label>
+        <CollectionItem
+          :name="item.name"
+        >
+        </CollectionItem>
       </SwiperSlide>
     </Swiper>
     <h1 class="section-name">Последние новости</h1>
     <div class="news-list">
-      <div
+      <news-item
         v-for="item in newsItems"
         :key="item.id"
-        class="news-container"
         @click="router.push(`/news/${item.id}`)"
+        :title="item.title"
+        :text="item.text"
+        :image="item.src"
       >
-        <img :src="item.src" :alt="item.alt">
-        <div class="news-body">
-          <h3> {{ item.title }} </h3>
-          <p> {{ item.text }} </p>
-        </div>
-      </div>
+      </news-item>
     </div>
   </div>
 </template>
@@ -120,9 +121,13 @@ body {
   padding: 12px 32px;
 }
 
+.swiper-slide {
+  width: auto;
+}
+
 .image-container {
-  width: 150px; /* Set your desired width */
-  height: 250px; /* Set your desired height */
+  width: 150px;
+  height: 250px;
   padding: 20px;
   border-radius: 16px;
   background-color: #272D36;
@@ -136,74 +141,11 @@ body {
   user-select: none;
 }
 
-.collection-container {
-  width: 150px;
-  height: 150px;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  border-radius: 16px; /* Rounded corners */
-  background-color: #272D36; /* Background color of the rectangle */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
-}
-
-.collection-container label {
-  text-align: center;
-}
-
 .news-list {
   margin: 10px 30px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.news-container {
-  display: flex;
-  align-items: stretch;
-  border-radius: 16px; /* Rounded corners */
-  background-color: #272D36; /* Background color of the rectangle */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
-  gap: 12px;
-  padding: 20px;
-}
-
-.news-container img {
-  height: 96px;
-  border-radius: 12px;
-  aspect-ratio: 1.25;
-  object-fit: cover;
-}
-
-.news-body {
-  flex-grow: 1; /* Allow news-body to take up available space */
-  min-width: 0; /* Important: Allow shrinking below content size */
-  overflow: hidden;
-}
-
-.news-body h3 {
-  margin: 0;
-  padding: 0;
-  font-size: 12px;
-  line-height: 1.2;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.news-body p {
-  margin: 8px 0 0;
-  padding: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* Constrain to 2 lines for the paragraph */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 12px;
-  line-height: 1.4; /* Adjust line height for better readability */
 }
 
 @media screen and (max-device-width: 480px) {
@@ -212,12 +154,6 @@ body {
     width: 100px;
     height: 150px;
     padding: 12px;
-  }
-
-  .collection-container {
-    width: 100px;
-    height: 100px;
-    padding: 16px;
   }
 
   .section-name {
@@ -230,17 +166,8 @@ body {
     font-size: 12px;
   }
 
-  .news-container {
-    padding: 16px;
-  }
-
-  .news-container img {
-    height: 64px;
-  }
-
-  .news-body p {
-    -webkit-line-clamp: 2; /* Constrain to 2 lines for the paragraph */
-    line-height: 1.2; /* Adjust line height for better readability */
+  .my-swiper {
+    padding: 10px 12px;
   }
 
   label {

@@ -2,15 +2,41 @@
 import { ref, onMounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Mousewheel } from 'swiper/modules'
+import { useRouter } from 'vue-router'
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 import 'swiper/css'
 import 'swiper/css/navigation'
+import Review from '@/components/Review.vue'
 
+const router = useRouter()
 const personItems = ref([])
-const dialogRef = ref(null)
+const reviewItems = ref([])
+const userCollections = ref([])
+const rateDialogRef = ref(null)
+const addDialogRef = ref(null)
 const props = defineProps(['id'])
 
-function showDialog() {
-  dialogRef.value.show()
+function showRateDialog() {
+  rateDialogRef.value.show()
+}
+
+function showAddDialog() {
+  addDialogRef.value.show()
+}
+
+function notifySuccess(text) {
+  toast.success(text, {
+    position: toast.POSITION.TOP_RIGHT,
+    theme: "dark"
+  })
+}
+
+function notifyError(text) {
+  toast.error(text, {
+    position: toast.POSITION.TOP_RIGHT,
+    theme: "dark"
+  })
 }
 
 onMounted(() => {
@@ -22,6 +48,31 @@ onMounted(() => {
   }))
   personArr.forEach((item) => {
     personItems.value.push(item)
+  })
+  const reviewArr = Array.from({ length: 5 }, (_, index) => ({
+    id: index + 1,
+    author: `Person${index + 1}`,
+    date: `00.00.0000`,
+    title: `News title`,
+    desc: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis varius erat vel magna aliquam pharetra. Etiam semper maximus dolor in maximus. Nunc consectetur ultrices ligula, in vehicula metus cursus venenatis. Nam id nunc eget enim dapibus pretium. Duis vel urna et justo euismod porttitor. In blandit enim ac elementum faucibus. Sed porta orci eu metus posuere rhoncus. Nam iaculis libero ac odio eleifend egestas. Proin euismod vehicula semper. Nullam tristique ultrices aliquet. Mauris non magna eget tortor cursus hendrerit.
+
+Pellentesque a justo vel massa molestie iaculis. Nam non mauris placerat nisl lacinia interdum non et nisi. Vivamus ac dui feugiat, pretium neque et, laoreet elit. Maecenas lacus diam, luctus vel sapien at, suscipit ullamcorper augue. Vivamus vel ligula non neque convallis volutpat sit amet ut orci. Nam eu metus vitae purus vulputate malesuada at facilisis velit. Nam consequat tortor vitae tempor tristique. Integer faucibus iaculis nunc, ac commodo nisi cursus ac. Etiam facilisis risus a lacus imperdiet, eu varius lectus maximus. Sed eu pellentesque nulla.
+
+Mauris efficitur augue mauris, in accumsan massa dapibus sit amet. Fusce id risus venenatis, laoreet enim et, sagittis ipsum. Morbi laoreet arcu nec diam sagittis tempor. Donec eget quam id lacus facilisis tincidunt. Phasellus lobortis venenatis tellus eget viverra. Sed massa massa, accumsan a arcu sed, rutrum pretium felis. Vivamus vel varius velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Phasellus arcu erat, blandit sit amet lorem at, blandit pellentesque lorem. Sed pulvinar dolor nunc, et luctus nibh bibendum vestibulum. Fusce vulputate neque ullamcorper urna bibendum ultricies. Fusce malesuada dui in leo placerat porttitor. Donec bibendum gravida quam, a mattis nisl laoreet ac. Pellentesque eleifend accumsan urna, non imperdiet urna porttitor et. Proin enim odio, laoreet ut maximus vitae, mattis sed enim. Sed volutpat lacus id mattis semper.
+
+Morbi ac purus id odio lobortis placerat. Morbi facilisis, ipsum vel ultrices sagittis, urna felis faucibus nulla, non ultricies velit mi sed mauris. Etiam lobortis, ex quis feugiat aliquet, velit sem porta turpis, id sodales dolor lectus sit amet nulla. Morbi et ex semper, gravida dolor non, lobortis quam. Aenean auctor id felis ut sagittis. Praesent a enim auctor, lacinia odio eu, feugiat justo. Maecenas orci odio, tincidunt id mollis quis, iaculis id velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae orci at nulla sollicitudin ornare vitae eu turpis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse dictum leo nec nulla consectetur, accumsan lacinia est semper.
+
+Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id interdum est. Morbi suscipit augue in ex maximus pharetra. Proin ultricies dui a orci blandit, quis vestibulum nulla lacinia. Nulla placerat tellus ut auctor vulputate. Nunc quis nunc fermentum, suscipit nisi vel, cursus sapien. Curabitur mattis ultrices pulvinar. Vivamus tristique, massa in laoreet tincidunt, odio mauris hendrerit neque, sit amet vestibulum eros ex nec tortor. Fusce euismod aliquet metus sed dapibus. Suspendisse ac libero nisi. Praesent eros libero, semper at leo vel, maximus tristique massa. Integer imperdiet ipsum ut diam volutpat, ut blandit arcu dapibus. Nulla facilisi. In tincidunt in quam et luctus.`,
+  }))
+  reviewArr.forEach((item) => {
+    reviewItems.value.push(item)
+  })
+  const collectionsArr = Array.from({ length: 55 }, (_, index) => ({
+    id: index + 1,
+    name: `Name ${index + 1}`,
+  }))
+  collectionsArr.forEach((item) => {
+    userCollections.value.push(item)
   })
 })
 </script>
@@ -49,11 +100,11 @@ onMounted(() => {
           </div>
         </div>
         <div id="action-buttons" class="horizontal-container">
-          <md-filled-button>
+          <md-filled-button @click="showAddDialog">
             Добавить
             <md-icon slot="icon">create_new_folder</md-icon>
           </md-filled-button>
-          <md-filled-button id="rate" @click="showDialog">
+          <md-filled-button @click="showRateDialog">
             Оценить
             <md-icon slot="icon">star</md-icon>
           </md-filled-button>
@@ -109,6 +160,7 @@ onMounted(() => {
         v-for="item in personItems"
         :key="item.id"
         class="person-container"
+        @click="router.push(`/person/${item.id}`)"
       >
         <div class="image-container">
           <img :src="item.src" alt="Description 1">
@@ -117,8 +169,7 @@ onMounted(() => {
         <div class="person-role">{{ item.role }}</div>
       </SwiperSlide>
     </Swiper>
-    <!--<h1>Отзывы</h1>-->
-    <md-dialog id="rate-dialog" ref="dialogRef">
+    <md-dialog id="rate-dialog" ref="rateDialogRef">
       <div slot="headline">Поставьте оценку</div>
       <form slot="content" id="form-id" method="dialog">
         <md-slider step="1" ticks value="0" min="0" max="10"></md-slider>
@@ -128,6 +179,34 @@ onMounted(() => {
         <md-text-button form="form-id" value="ok">Ок</md-text-button>
       </div>
     </md-dialog>
+    <md-dialog id="collections-dialog" ref="addDialogRef">
+      <div slot="headline">Выберите коллекцию</div>
+      <div
+        slot="content"
+        class="user-collection"
+        v-for="item in userCollections"
+        @click="notifySuccess(`Фильм успешно добавлен!`)"
+      >
+        <p>{{ item.name }}</p>
+      </div>
+    </md-dialog>
+    <h1 class="main-page-text">Отзывы</h1>
+    <Review
+      v-for="item in reviewItems"
+      :key="item.id"
+      :author="item.author"
+      :date="item.date"
+      :title="item.title"
+      :description="item.desc"
+    >
+    </Review>
+    <div class="review-actions">
+      <md-text-button
+        @click="router.push('/review/add')"
+      >
+        Добавить
+      </md-text-button>
+    </div>
   </div>
 </template>
 
@@ -292,6 +371,23 @@ md-slider {
   width: 110px;
 }
 
+.review-actions {
+  display: flex;
+  justify-content: end;
+  margin-right: 32px;
+}
+
+.user-collection {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: 16px; /* Rounded corners */
+  background-color: var(--focus-color); /* Background color of the rectangle */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
+  padding: 0 16px;
+  margin: 12px 20px;
+}
+
 @media screen and (max-width: 480px) {
 
   h1 {
@@ -333,10 +429,6 @@ md-slider {
     align-self: center;
   }
 
-  #person-name, #person-role {
-    font-size: 12px;
-  }
-
   .content-container {
     align-self: center;
   }
@@ -344,15 +436,6 @@ md-slider {
   .image-container {
     width: 100px;
     height: 150px;
-  }
-
-  .scroll-button {
-    width: 10px;
-    justify-content: center;
-  }
-
-  .right {
-    display: flex;
   }
 
   .main-page-text {

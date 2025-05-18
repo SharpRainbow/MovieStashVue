@@ -9,6 +9,7 @@
 
 * {
     --md-icon-font: 'Material Symbols Rounded';
+    --toastify-color-dark: #272D36;
     color: var(--text-color);
     color-scheme: dark;
 }

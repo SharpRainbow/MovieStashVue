@@ -1,6 +1,7 @@
 <script setup>
 import Pagination from '@/components/Pagination.vue'
 import { onMounted, ref } from 'vue'
+import ListItem from '@/components/ListItem.vue'
 
 const contents = ref([])
 const currentPage = ref(1)
@@ -16,7 +17,7 @@ function onPageChange(page) {
 }
 
 function loadItems() {
-  const collectionArr = Array.from({ length: 10 }, (_, index) => ({
+  const collectionArr = Array.from({ length: 2 }, (_, index) => ({
     id: 10 * (currentPage.value - 1) + index + 1,
     name: `Name ${10 * (currentPage.value - 1) + index + 1}`,
     date: `Date ${10 * (currentPage.value - 1) + index + 1}`,
@@ -42,20 +43,13 @@ onMounted(() => {
     <h2>Collection name</h2>
     <p>Collection description</p>
     <div class="content-list">
-      <div
-        v-for="item in contents"
-        :key="item.id"
-        class="content-container"
-      >
-        <img :src="item.src" alt="search-image">
-        <div class="search-result-body">
-          <h3>{{ item.name }}</h3>
-          <p>{{ item.date }}</p>
-        </div>
-        <div
-          class="icon-container"
-          @click="removeContent(item)"
-        >
+      <div v-for="item in contents" :key="item.id" class="collection-item-container">
+        <ListItem
+          :name="item.name"
+          :date="item.date"
+          :image="item.image"
+        />
+        <div class="icon-container" @click="removeContent(item)">
           <md-icon>close</md-icon>
         </div>
       </div>
@@ -74,15 +68,14 @@ onMounted(() => {
 <style scoped>
 
 .view-content {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  align-items: start;
   align-self: center;
   box-sizing: border-box;
   padding: 0 24px;
   max-width: 1000px;
   width: 100%;
+  height: 100%;
 }
 
 .content-list {
@@ -90,10 +83,12 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  box-sizing: border-box;
   padding: 20px 24px;
   border-radius: 16px;
   border: 1px solid var(--secondary-color);
   width: 100%;
+  height: 100%;
 }
 
 .pagination-wrapper {
@@ -102,20 +97,10 @@ onMounted(() => {
   width: 100%;
 }
 
-.content-container {
+.collection-item-container {
   display: flex;
   gap: 16px;
   align-items: center;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 250px;
-}
-
-.content-container img {
-  height: 96px;
-  aspect-ratio: 10 / 15;
-  border-radius: 16px;
-  object-fit: fill;
 }
 
 .icon-container {
@@ -125,21 +110,21 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .icon-container:hover {
-  background-color: var(--focus-color); /* Slightly darker blue on hover */
+  background-color: var(--focus-color);
 }
 
 @media screen and (max-device-width: 480px) {
-
   .content-list {
     border: 0;
   }
 
   h2 {
     font-size: 20px;
+    margin: 0;
   }
-
 }
 </style>

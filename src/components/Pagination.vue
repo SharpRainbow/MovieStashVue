@@ -148,6 +148,7 @@ function isPageActive(page) {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 0;
 }
 
 .pagination-item {

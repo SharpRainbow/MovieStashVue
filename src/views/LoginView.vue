@@ -1,7 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const passwordVisible = ref(false)
 </script>
 
@@ -16,7 +18,7 @@ const passwordVisible = ref(false)
         </md-icon-button>
       </md-outlined-text-field>
       <div class="horizontal-container">
-        <md-filled-button>Вход</md-filled-button>
+        <md-filled-button @click="router.replace(`/account`)"> Вход </md-filled-button>
         <RouterLink to="/register">
           <md-filled-button>Регистрация</md-filled-button>
         </RouterLink>
@@ -50,5 +52,4 @@ const passwordVisible = ref(false)
   display: flex;
   gap: 24px;
 }
-
 </style>

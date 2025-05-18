@@ -53,9 +53,36 @@ const router = createRouter({
       component: () => import('../views/CollectionsView.vue'),
     },
     {
+      path: '/collections/personal',
+      component: () => import('../views/CollectionsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/collection/:id',
       props: true,
       component: () => import('../views/CollectionContentView.vue'),
+    },
+    {
+      path: '/person/:id',
+      props: true,
+      component: () => import('../views/PersonView.vue'),
+    },
+    {
+      path: '/news',
+      component: () => import('../views/NewsView.vue'),
+    },
+    {
+      path: '/news/:id',
+      props: true,
+      component: () => import('../views/NewsBodyView.vue'),
+    },
+    {
+      path: '/news/add',
+      component: () => import('../views/NewsAddView.vue'),
+    },
+    {
+      path: '/review/add',
+      component: () => import('../views/ReviewAddView.vue'),
     }
   ],
 })
