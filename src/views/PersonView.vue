@@ -2,38 +2,56 @@
 import { ref, onMounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Mousewheel } from 'swiper/modules'
+import { useRouter, useRoute } from 'vue-router'
 import 'swiper/css'
 import 'swiper/css/navigation'
+import axios from 'axios'
+import { useSwiperData } from '@/composables/useSwiperData.js'
 
-const personItems = ref([])
-const dialogRef = ref(null)
+const router = useRouter()
+const route = useRoute()
 const props = defineProps(['id'])
 
-function showDialog() {
-  dialogRef.value.show()
+const personData = ref({
+  id: props.id,
+  name: '',
+  image: '/src/assets/images/placeholder.jpg',
+  career: '',
+  birthday: '',
+  death: '',
+  birthplace: '',
+  height: '',
+})
+
+async function loadPersonInfo() {
+  try {
+    const request = await axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/celebrities/${route.params.id}`,
+    )
+    personData.value = request.data
+  } catch (e) {
+    console.error(e)
+  }
 }
 
-const personData = {
-  id: props.id,
-  name: "Имя Фамилия",
-  image: "/src/assets/images/placeholder.jpg",
-  career: "Актер, продюсер, режисер",
-  birthday: "00.00.0000",
-  death: "",
-  birthplace: "City",
-  height: "190"
-}
+const { items: swiperContentItems, loadMore: loadMoreContents } = useSwiperData((page) =>
+  axios.get(
+    `https://168882.msk.web.highserver.ru/api/v1/celebrities/${route.params.id}/contents?page=${page}&limit=20`,
+  ),
+)
 
 onMounted(() => {
-  const personArr = Array.from({ length: 55 }, (_, index) => ({
-    id: index + 1,
-    src: `/src/assets/images/placeholder.jpg`,
-    name: `Film${index + 1}`,
-    date: `Date${index + 1}`,
-  }))
-  personArr.forEach((item) => {
-    personItems.value.push(item)
-  })
+  loadPersonInfo()
+  loadMoreContents()
+  // const personArr = Array.from({ length: 55 }, (_, index) => ({
+  //   id: index + 1,
+  //   src: `/src/assets/images/placeholder.jpg`,
+  //   name: `Film${index + 1}`,
+  //   date: `Date${index + 1}`,
+  // }))
+  // personArr.forEach((item) => {
+  //   personItems.value.push(item)
+  // })
 })
 </script>
 
@@ -41,31 +59,35 @@ onMounted(() => {
   <div class="content">
     <div id="upper-content" class="horizontal-container">
       <div class="img-container">
-        <img id="poster" :src="personData.image" alt="poster">
+        <img id="poster" :src="personData.image" alt="poster" />
       </div>
       <div class="person-info">
         <h1 id="about-person">{{ personData.name }}</h1>
-        <p id="content-description">
+        <p>
           {{ personData.career }}
         </p>
         <div class="horizontal-container" v-if="personData.birthday">
           <md-icon slot="icon">event</md-icon>
           <div class="property">
-            {{ personData.death === "" ? "Дата рождения:" : "Годы жизни:" }}
+            {{ !personData.death ? 'Дата рождения:' : 'Годы жизни:' }}
           </div>
-          <div id="genres" class="value">
-            {{ personData.death === "" ? personData.birthday : `${personData.birthday} - ${personData.death}` }}
+          <div class="value">
+            {{
+              !personData.death
+                ? personData.birthday
+                : `${personData.birthday} - ${personData.death}`
+            }}
           </div>
         </div>
         <div class="horizontal-container" v-if="personData.birthplace">
           <md-icon slot="icon">language</md-icon>
-          <div class="property">Место рождения: </div>
-          <div id="country" class="value">{{ personData.birthplace }}</div>
+          <div class="property">Место рождения:</div>
+          <div class="value">{{ personData.birthplace }}</div>
         </div>
         <div class="horizontal-container" v-if="personData.height">
           <md-icon slot="icon">height</md-icon>
-          <div class="property">Рост: </div>
-          <div id="release-date" class="value">{{ `${personData.height} см` }}</div>
+          <div class="property">Рост:</div>
+          <div class="value">{{ `${personData.height} см` }}</div>
         </div>
       </div>
     </div>
@@ -74,27 +96,28 @@ onMounted(() => {
       :modules="[Navigation, Mousewheel]"
       :mousewheel="true"
       :navigation="true"
-      :spaceBetween=12
+      :spaceBetween="12"
       class="my-swiper"
       slidesPerView="auto"
+      @reachEnd="loadMoreContents"
     >
       <SwiperSlide
-        v-for="item in personItems"
+        v-for="item in swiperContentItems"
         :key="item.id"
-        class="person-container"
+        class="content-container"
+        @click="router.push(`/content/${item.id}`)"
       >
         <div class="image-container">
-          <img :src="item.src" alt="Description 1">
+          <img :src="item.image" alt="poster" />
         </div>
-        <div class="person-name">{{ item.name }}</div>
-        <div class="person-role">{{ item.date }}</div>
+        <div class="content-name">{{ item.name }}</div>
+        <div class="release-date">{{ item.releaseDate }}</div>
       </SwiperSlide>
     </Swiper>
   </div>
 </template>
 
 <style scoped>
-
 #about-person {
   text-align: center;
   margin-top: 0;
@@ -180,11 +203,12 @@ body {
   word-wrap: break-word;
 }
 
-.person-container {
+.content-container {
   width: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: pointer;
 }
 
 .image-container {
@@ -202,13 +226,13 @@ body {
   user-select: none;
 }
 
-.person-name, .person-role {
+.content-name,
+.release-date {
   text-align: center;
   width: 110px;
 }
 
 @media screen and (max-width: 480px) {
-
   h1 {
     font-size: 24px;
     margin-left: 0;
@@ -217,6 +241,14 @@ body {
 
   .my-swiper {
     padding-left: 12px;
+  }
+
+  #about-person {
+    align-self: center;
+  }
+
+  #about-person ~ p {
+    align-self: center;
   }
 
   #about-person ~ * {
@@ -246,6 +278,7 @@ body {
     overflow: hidden;
     aspect-ratio: 3 / 4;
     align-self: center;
+    margin: 0;
   }
 
   .image-container {

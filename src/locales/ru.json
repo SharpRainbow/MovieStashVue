@@ -18,10 +18,37 @@
     },
     "password": {
       "label": "Пароль"
+    },
+    "review": {
+      "placeholder": {
+        "title": "Заголовок рецензии",
+        "type": "Тип рецензии",
+        "desc": "Текст рецензии..."
+      }
     }
   },
   "labels": {
     "personalInfo": "Мои данные"
+  },
+  "notifications": {
+    "content": {
+      "updated": "Коллекция обновлена!",
+      "update_error": "Не удалось удалить контент!"
+    }
+  },
+  "dialogs": {
+    "content": {
+      "delete_header": "Удаление контента",
+      "delete_message": "Фильм {name} будет удален! Продолжить?",
+      "delete_ok": "Ок",
+      "delete_cancel": "Отмена"
+    },
+    "review": {
+      "delete_header": "Удаление рецензии",
+      "delete_message": "Рецензия будет удалена! Продолжить?",
+      "delete_ok": "Ок",
+      "delete_cancel": "Отмена"
+    }
   },
   "buttons": {
     "save": "Сохранить",

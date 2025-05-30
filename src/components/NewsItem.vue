@@ -33,6 +33,7 @@ const props = defineProps({
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
   gap: 12px;
   padding: 20px;
+  cursor: pointer;
 }
 
 .news-container img {

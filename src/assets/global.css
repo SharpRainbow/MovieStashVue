@@ -46,6 +46,20 @@ md-text-button {
     --md-text-button-hover-label-text-color: var(--icon-color);
 }
 
+md-dialog {
+    align-self: center;
+    --md-dialog-container-color: var(--secondary-color);
+    --md-dialog-headline-color: var(--icon-color);
+}
+
+md-slider {
+    --md-slider-active-track-color: var(--focus-color);
+    --md-slider-handle-color: var(--focus-color);
+    --md-slider-pressed-handle-color: var(--focus-color);
+    --md-slider-hover-handle-color: var(--focus-color);
+    --md-slider-focus-handle-color: var(--focus-color);
+}
+
 body {
     margin: 0
 }

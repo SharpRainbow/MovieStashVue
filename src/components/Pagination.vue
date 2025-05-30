@@ -27,7 +27,7 @@ const startPage = computed(() => {
     return 1;
   }
 
-  if (props.currentPage === props.totalPages) {
+  if (props.currentPage === props.totalPages && props.totalPages >= props.maxVisibleButtons) {
     return props.totalPages - props.maxVisibleButtons + 1;
   }
 
@@ -82,7 +82,7 @@ function isPageActive(page) {
 </script>
 
 <template>
-  <ul class="pagination">
+  <ul class="pagination" v-if="totalPages > 0">
     <li class="pagination-item">
       <md-text-button
         type="button"

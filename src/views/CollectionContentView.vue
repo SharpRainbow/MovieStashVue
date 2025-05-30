@@ -1,55 +1,155 @@
 <script setup>
 import Pagination from '@/components/Pagination.vue'
 import { onMounted, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import ListItem from '@/components/ListItem.vue'
+import axios from 'axios'
+import { useListData } from '@/composables/useListData.js'
+import { useAuthStore } from '@/stores/authStore.js'
+import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
+import { notifyError, notifySuccess } from '@/utils/notifications.js'
 
-const contents = ref([])
-const currentPage = ref(1)
-const totalPages = ref(5)
+const authStore = useAuthStore()
+const itemLimit = 4
+const router = useRouter()
+const route = useRoute()
+const deleteContentDialogRef = ref(null)
+const collectionData = ref({
+  name: 'Collection name',
+  description: 'Collection description',
+})
+const {
+  selectedItem: selectedContentData,
+  requestAction: showRemoveContentDialog,
+  confirmAction: confirmRemoval,
+} = useConfirmableAction(deleteContentDialogRef)
+const {
+  items: collectionContentItems,
+  loadPage: loadMoreContents,
+  currentPage,
+  totalPages,
+} = useListData((page) => {
+  if (route.meta.genre) {
+    return axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/contents?genre=${route.params.id}&page=${page}&limit=${itemLimit}`,
+    )
+  } else if (route.meta.requiresAuth) {
+    return axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}/contents?page=${page}&limit=${itemLimit}`,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+  } else {
+    return axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/collections/${route.params.id}/contents?page=${page}&limit=${itemLimit}`,
+    )
+  }
+})
+
+function resetContentList() {
+  totalPages.value = 0
+  currentPage.value = 1
+  calculatePages()
+  loadMoreContents()
+}
 
 function onPageChange(page) {
-  console.log(page)
   currentPage.value = page
-  if (currentPage.value === totalPages.value) {
-    totalPages.value += 1
+  if (page === totalPages.value) {
+    calculatePages()
   }
-  loadItems()
+  loadMoreContents()
 }
 
-function loadItems() {
-  const collectionArr = Array.from({ length: 2 }, (_, index) => ({
-    id: 10 * (currentPage.value - 1) + index + 1,
-    name: `Name ${10 * (currentPage.value - 1) + index + 1}`,
-    date: `Date ${10 * (currentPage.value - 1) + index + 1}`,
-    src: `/src/assets/images/placeholder.jpg`,
-  }))
-  contents.value = []
-  collectionArr.forEach((item) => {
-    contents.value.push(item)
-  })
+async function removeContent(content) {
+  try {
+    const removeContentResponse = await axios.delete(
+      `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}/contents?content=${content.id}`,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+    if (removeContentResponse.status === 200) {
+      notifySuccess($t(`notifications.content.updated`))
+      resetContentList()
+    }
+  } catch (error) {
+    notifyError($t(`notifications.content.update_error`))
+  }
 }
 
-function removeContent(content) {
-  contents.value.splice(contents.value.indexOf(content), 1)
+async function calculatePages() {
+  let items
+  let content
+  const pageNumber = currentPage.value > 1 ? Math.ceil(currentPage.value / 3) + 1 : 1
+  try {
+    if (route.meta.genre) {
+      content = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/contents?genre=${route.params.id}&page=${pageNumber}&limit=${itemLimit * 3}`,
+      )
+    } else if (route.meta.requiresAuth) {
+      content = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}/contents?page=${pageNumber}&limit=${itemLimit * 3}`,
+        { headers: { Authorization: `Bearer ${authStore.token}` } },
+      )
+    } else {
+      content = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/collections/${route.params.id}/contents?page=${pageNumber}&limit=${itemLimit * 3}`,
+      )
+    }
+    items = content.data.length / itemLimit
+    totalPages.value += Math.ceil(items)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function getCollectionInfo() {
+  try {
+    if (route.meta.genre) {
+      let request = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/genres/${route.params.id}`,
+      )
+      collectionData.value.name = request.data.name
+    } else if (route.meta.requiresAuth) {
+      let request = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}`,
+        { headers: { Authorization: `Bearer ${authStore.token}` } },
+      )
+      collectionData.value.name = request.data.name
+      collectionData.value.description = request.data.description
+    } else {
+      let request = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/collections/${route.params.id}`,
+      )
+      collectionData.value.name = request.data.name
+      collectionData.value.description = request.data.description
+    }
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 onMounted(() => {
-  loadItems()
+  getCollectionInfo()
+  resetContentList()
 })
 </script>
 
 <template>
   <div class="view-content">
-    <h2>Collection name</h2>
-    <p>Collection description</p>
+    <h2>{{ collectionData.name }}</h2>
+    <p>{{ collectionData.description }}</p>
     <div class="content-list">
-      <div v-for="item in contents" :key="item.id" class="collection-item-container">
+      <div v-for="item in collectionContentItems" :key="item.id" class="collection-item-container">
         <ListItem
           :name="item.name"
-          :date="item.date"
+          :date="item.releaseDate"
           :image="item.image"
+          @click="router.push(`/content/${item.id}`)"
         />
-        <div class="icon-container" @click="removeContent(item)">
+        <div
+          class="icon-container"
+          @click="showRemoveContentDialog(item)"
+          v-if="route.meta.requiresAuth"
+        >
           <md-icon>close</md-icon>
         </div>
       </div>
@@ -63,10 +163,23 @@ onMounted(() => {
       />
     </div>
   </div>
+  <md-dialog ref="deleteContentDialogRef">
+    <div slot="headline">{{ $t(`dialogs.content.delete_header`) }}</div>
+    <form slot="content" id="remove-dialog" method="dialog">
+      {{ $t(`dialogs.content.delete_message`) }}
+    </form>
+    <div slot="actions">
+      <md-text-button form="remove-dialog">{{
+        $t(`dialogs.content.delete_cancel`)
+      }}</md-text-button>
+      <md-filled-button form="remove-dialog" @click="confirmRemoval(removeContent)">
+        {{ $t(`dialogs.content.delete_ok`) }}
+      </md-filled-button>
+    </div>
+  </md-dialog>
 </template>
 
 <style scoped>
-
 .view-content {
   display: flex;
   flex-direction: column;
@@ -79,7 +192,7 @@ onMounted(() => {
 }
 
 .content-list {
-  align-items: center;
+  align-items: start;
   display: flex;
   flex-direction: column;
   gap: 24px;

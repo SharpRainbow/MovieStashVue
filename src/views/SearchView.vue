@@ -1,29 +1,101 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { debounce } from 'lodash'
 import ListItem from '@/components/ListItem.vue'
+import Pagination from '@/components/Pagination.vue'
+import axios from 'axios'
+import { useListData } from '@/composables/useListData.js'
 
-const searchItems = ref([])
+const router = useRouter()
+// const searchItems = ref([])
+const currentTab = ref(0)
+const searchText = ref('')
+const itemTypeUrl = computed(() => {
+  return currentTab.value === 0 ? 'content' : 'person'
+})
+const itemLimit = 5
+const {
+  items: collectionSearchItems,
+  loadPage: loadMoreSearchItems,
+  totalPages,
+  currentPage,
+} = useListData((page) => {
+  if (currentTab.value === 0) {
+    return axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/contents?page=${page}&limit=${itemLimit}&name=${searchText.value}`,
+    )
+  } else {
+    return axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/celebrities?page=${page}&limit=${itemLimit}&name=${searchText.value}`,
+    )
+  }
+})
+const debouncedSearch = debounce(() => {
+  resetSearchResults()
+}, 500)
+
+watch(searchText, () => {
+  debouncedSearch()
+})
+
+function resetSearchResults() {
+  debouncedSearch.cancel()
+  totalPages.value = 0
+  currentPage.value = 1
+  collectionSearchItems.value = []
+  if (searchText.value) {
+    calculatePages()
+    loadMoreSearchItems()
+  }
+}
+
+function onPageChange(page) {
+  currentPage.value = page
+  if (page === totalPages.value) {
+    calculatePages()
+  }
+  loadMoreSearchItems()
+}
+
+function onTabChange(event) {
+  currentTab.value = event.target.activeTabIndex
+  resetSearchResults()
+}
+
+async function calculatePages() {
+  let itemsCount
+  let searchResult
+  const pageNumber = currentPage.value > 1 ? Math.ceil(currentPage.value / 3) + 1 : 1
+  try {
+    if (currentTab.value === 0) {
+      searchResult = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/contents?page=${pageNumber}&limit=${itemLimit * 3}&name=${searchText.value}`,
+      )
+    } else {
+      searchResult = await axios.get(
+        `https://168882.msk.web.highserver.ru/api/v1/celebrities?page=${pageNumber}&limit=${itemLimit * 3}&name=${searchText.value}`,
+      )
+    }
+    itemsCount = searchResult.data.length / itemLimit
+    totalPages.value += Math.ceil(itemsCount)
+  } catch (e) {
+    console.error(e)
+  }
+}
 
 onMounted(() => {
-  const searchArr = Array.from({ length: 10 }, (_, index) => ({
-    id: index + 1,
-    src: `/src/assets/images/placeholder.jpg`,
-    name: `Person${index + 1}`,
-    date: `Date${index + 1}`,
-  }))
-  searchArr.forEach((item) => {
-    searchItems.value.push(item)
-  })
+  resetSearchResults()
 })
 </script>
 
 <template>
   <div class="content">
     <div class="search-container">
-      <input type="text" class="search-input" placeholder="Поиск">
-      <button class="close-button">&times;</button>
+      <input type="text" class="search-input" placeholder="Поиск" v-model="searchText" />
+      <button class="close-button" @click="searchText = ''">&times;</button>
     </div>
-    <md-tabs id="search-tabs">
+    <md-tabs id="search-tabs" @change="onTabChange">
       <md-primary-tab>
         <md-icon slot="icon">theaters</md-icon>
         Фильмы
@@ -36,13 +108,22 @@ onMounted(() => {
     <md-linear-progress id="load-indicator" indeterminate></md-linear-progress>
     <div class="results">
       <ListItem
-        v-for="item in searchItems"
+        v-for="item in collectionSearchItems"
         :key="item.id"
         :name="item.name"
         :date="item.date"
-        :image="item.src"
+        :image="item.image"
+        @click="router.push(`/${itemTypeUrl}/${item.id}`)"
       >
       </ListItem>
+    </div>
+    <div class="pagination-wrapper">
+      <pagination
+        :currentPage="currentPage"
+        :perPage="10"
+        :totalPages="totalPages"
+        @pagechanged="onPageChange"
+      />
     </div>
   </div>
 </template>
@@ -50,7 +131,7 @@ onMounted(() => {
 <style scoped>
 md-tabs {
   --md-primary-tab-container-color: transparent;
-  --md-sys-color-primary: #4A5671;
+  --md-sys-color-primary: #4a5671;
   flex-shrink: 0;
 }
 
@@ -59,12 +140,13 @@ md-primary-tab {
 }
 
 md-linear-progress {
-  --md-linear-progress-active-indicator-color: #4A5671;
+  --md-linear-progress-active-indicator-color: #4a5671;
   visibility: collapse;
   flex-shrink: 0;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -81,9 +163,9 @@ html, body {
 .search-container {
   display: flex;
   align-items: center;
-  background-color: #272D36;
+  background-color: #272d36;
   padding: 12px 24px;
-  border: 1px solid #4A5671;
+  border: 1px solid #4a5671;
   border-radius: 48px;
   margin: 0 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -95,7 +177,6 @@ html, body {
   background: none;
   border: none;
   outline: none;
-  color: #4A5671;
   font-size: 24px;
 }
 
@@ -106,13 +187,13 @@ html, body {
 .close-button {
   background: none;
   border: none;
-  color: #4A5671;
+  color: #4a5671;
   font-size: 32px;
   cursor: pointer;
 }
 
 .results {
-  background: #272D36;
+  background: #272d36;
   flex-grow: 1;
   border-radius: 20px;
   margin: 10px 40px;
@@ -121,6 +202,12 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 @media screen and (max-device-width: 480px) {
@@ -139,6 +226,5 @@ html, body {
   .search-input {
     font-size: 20px;
   }
-
 }
 </style>

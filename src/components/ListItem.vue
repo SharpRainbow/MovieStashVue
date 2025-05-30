@@ -32,6 +32,7 @@ const props = defineProps({
   display: flex;
   gap: 12px;
   align-items: center;
+  cursor: pointer;
 }
 
 .list-item-body img {

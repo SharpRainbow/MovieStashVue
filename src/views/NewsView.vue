@@ -10,7 +10,6 @@ const currentPage = ref(1)
 const totalPages = ref(5)
 
 function onPageChange(page) {
-  console.log(page)
   currentPage.value = page
   if (currentPage.value === totalPages.value) {
     totalPages.value += 1

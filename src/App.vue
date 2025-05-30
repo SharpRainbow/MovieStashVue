@@ -1,6 +1,14 @@
 <script setup>
 import { RouterLink, RouterView} from 'vue-router'
 import '@material/web/all.js'
+import { computed  } from 'vue'
+import { useAuthStore } from '@/stores/authStore.js'
+
+const authStore = useAuthStore()
+authStore.checkToken()
+const accountLink = computed(() => {
+  return authStore.isLoggedIn ? '/account' : '/login'
+})
 </script>
 
 <template>
@@ -38,7 +46,7 @@ import '@material/web/all.js'
           <span class="nav-label">Новости</span>
         </div>
         </RouterLink>
-        <RouterLink to="/account">
+        <RouterLink :to="accountLink">
         <div class="nav-item">
           <div class="icon-container">
             <md-icon slot="icon">person</md-icon>
@@ -59,7 +67,7 @@ import '@material/web/all.js'
       <footer id="footer">
         <div class="footer-content">
           <div class="footer-left">
-            <p>&copy; 2024 MovieStash</p>
+            <p>&copy; 2025 MovieStash</p>
           </div>
           <div class="footer-right">
             <div class="social-icons">

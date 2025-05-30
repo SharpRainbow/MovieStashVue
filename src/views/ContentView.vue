@@ -1,79 +1,202 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Navigation, Mousewheel } from 'swiper/modules'
-import { useRouter } from 'vue-router'
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import { Mousewheel, Navigation } from 'swiper/modules'
+import { useRoute, useRouter } from 'vue-router'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import Review from '@/components/Review.vue'
+import axios from 'axios'
+import { useSwiperData } from '@/composables/useSwiperData.js'
+import { useAuthStore } from '@/stores/authStore.js'
+import { notifyError, notifySuccess, notifyInfo } from '@/utils/notifications.js'
 
+const authStore = useAuthStore()
 const router = useRouter()
-const personItems = ref([])
+const route = useRoute()
 const reviewItems = ref([])
 const userCollections = ref([])
 const rateDialogRef = ref(null)
 const addDialogRef = ref(null)
-const props = defineProps(['id'])
+const reviewAdded = ref(false)
+const ratingSlider = ref(null)
+const ratingId = ref(0)
+const ratingValue = ref(0)
+
+watch(
+  () => reviewItems.value.length,
+  () => {
+    if (authStore.isLoggedIn && reviewItems.value.length > 0) {
+      reviewAdded.value = Number(reviewItems.value[0].userId) === Number(authStore.user.userId)
+      if (reviewAdded.value) {
+        reviewItems.value[0].actions = true
+        reviewItems.value[0].deleteAction = removeReview
+      }
+    }
+  },
+)
+
+const contentInfo = ref({
+  boxOffice: 0,
+  budget: 0,
+  countries: '',
+  description: '',
+  duration: '',
+  genres: '',
+  id: 0,
+  image: '',
+  name: '',
+  rating: 0,
+  ratingImdb: 0,
+  ratingKinopoisk: 0,
+  releaseDate: '',
+})
 
 function showRateDialog() {
   rateDialogRef.value.show()
 }
 
 function showAddDialog() {
+  if (userCollections.value.length <= 0) {
+    notifyInfo('Для добавления фильма создайте коллекцию!')
+    return
+  }
   addDialogRef.value.show()
 }
 
-function notifySuccess(text) {
-  toast.success(text, {
-    position: toast.POSITION.TOP_RIGHT,
-    theme: "dark"
-  })
+async function removeReview(reviewId) {
+  try {
+    const createReviewResponse = await axios.delete(
+      `https://168882.msk.web.highserver.ru/api/v1/reviews/${reviewId}`,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+    if (createReviewResponse.status === 200) {
+      await loadContentReviews()
+    }
+  } catch (error) {
+    console.error(error)
+    notifyError('Не удалось удалить рецензию!')
+  }
 }
 
-function notifyError(text) {
-  toast.error(text, {
-    position: toast.POSITION.TOP_RIGHT,
-    theme: "dark"
-  })
+async function addContentToCollection(collection) {
+  try {
+    const addToCollectionResponse = await axios.post(
+      `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${collection.id}/contents?content=${route.params.id}`,
+      null,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+    if (addToCollectionResponse.status === 201) {
+      notifySuccess('Коллекция обновлена!')
+    }
+  } catch (error) {
+    console.error(error)
+    notifyError('Не удалось добавить фильм в коллекцию!')
+  }
+  addDialogRef.value.close()
 }
+
+async function loadUserCollections() {
+  try {
+    const collectionsResponse = await axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/collections/personal?limit=-1`,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+    if (collectionsResponse.status === 200 && collectionsResponse.data.length > 0) {
+      userCollections.value.push(...collectionsResponse.data)
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function loadContentInfo() {
+  try {
+    const request = await axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/contents/${route.params.id}`,
+    )
+    contentInfo.value = request.data
+    contentInfo.value.genres = contentInfo.value.genres.map((entry) => entry.name).join(', ')
+    contentInfo.value.countries = contentInfo.value.countries.map((entry) => entry.name).join(', ')
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+async function loadContentReviews() {
+  try {
+    const request = await axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/contents/${route.params.id}/reviews?limit=5`,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+    if (request.status === 200) {
+      reviewItems.value = []
+      reviewItems.value.push(...request.data)
+    }
+  } catch (err) {
+    notifyError('Не удалось загрузить рецензии!')
+  }
+}
+
+async function loadRating() {
+  try {
+    const request = await axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/stars?content_id=${route.params.id}`,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+    if (request.status === 200) {
+      ratingValue.value = request.data.rating
+      ratingId.value = request.data.id
+    }
+  } catch (err) {
+    if (err.status === 404) {
+      ratingValue.value = 0
+      ratingId.value = 0
+    }
+    console.error(err)
+  }
+}
+
+async function rateContent() {
+  try {
+    const rating = ratingSlider.value.value
+    let request
+    if (ratingId.value > 0) {
+      request = await axios.patch(
+        `https://168882.msk.web.highserver.ru/api/v1/stars/${ratingId.value}?rating=${rating}`,
+        null,
+        { headers: { Authorization: `Bearer ${authStore.token}` } },
+      )
+    } else {
+      request = await axios.post(
+        `https://168882.msk.web.highserver.ru/api/v1/stars`,
+        {
+          content_id: Number(route.params.id),
+          rating: rating,
+        },
+        { headers: { Authorization: `Bearer ${authStore.token}` } },
+      )
+    }
+    if (request.status === 200) await loadRating()
+  } catch (err) {
+    notifyError('Не удалось поставить оценку!')
+  }
+}
+
+const { items: swiperCelebritiesItems, loadMore: loadMoreCelebrities } = useSwiperData((page) =>
+  axios.get(
+    `https://168882.msk.web.highserver.ru/api/v1/contents/${route.params.id}/celebrities?page=${page}&limit=20`,
+  ),
+)
 
 onMounted(() => {
-  const personArr = Array.from({ length: 55 }, (_, index) => ({
-    id: index + 1,
-    src: `/src/assets/images/placeholder.jpg`,
-    name: `Person${index + 1}`,
-    role: `Role${index + 1}`,
-  }))
-  personArr.forEach((item) => {
-    personItems.value.push(item)
-  })
-  const reviewArr = Array.from({ length: 5 }, (_, index) => ({
-    id: index + 1,
-    author: `Person${index + 1}`,
-    date: `00.00.0000`,
-    title: `News title`,
-    desc: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis varius erat vel magna aliquam pharetra. Etiam semper maximus dolor in maximus. Nunc consectetur ultrices ligula, in vehicula metus cursus venenatis. Nam id nunc eget enim dapibus pretium. Duis vel urna et justo euismod porttitor. In blandit enim ac elementum faucibus. Sed porta orci eu metus posuere rhoncus. Nam iaculis libero ac odio eleifend egestas. Proin euismod vehicula semper. Nullam tristique ultrices aliquet. Mauris non magna eget tortor cursus hendrerit.
-
-Pellentesque a justo vel massa molestie iaculis. Nam non mauris placerat nisl lacinia interdum non et nisi. Vivamus ac dui feugiat, pretium neque et, laoreet elit. Maecenas lacus diam, luctus vel sapien at, suscipit ullamcorper augue. Vivamus vel ligula non neque convallis volutpat sit amet ut orci. Nam eu metus vitae purus vulputate malesuada at facilisis velit. Nam consequat tortor vitae tempor tristique. Integer faucibus iaculis nunc, ac commodo nisi cursus ac. Etiam facilisis risus a lacus imperdiet, eu varius lectus maximus. Sed eu pellentesque nulla.
-
-Mauris efficitur augue mauris, in accumsan massa dapibus sit amet. Fusce id risus venenatis, laoreet enim et, sagittis ipsum. Morbi laoreet arcu nec diam sagittis tempor. Donec eget quam id lacus facilisis tincidunt. Phasellus lobortis venenatis tellus eget viverra. Sed massa massa, accumsan a arcu sed, rutrum pretium felis. Vivamus vel varius velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Phasellus arcu erat, blandit sit amet lorem at, blandit pellentesque lorem. Sed pulvinar dolor nunc, et luctus nibh bibendum vestibulum. Fusce vulputate neque ullamcorper urna bibendum ultricies. Fusce malesuada dui in leo placerat porttitor. Donec bibendum gravida quam, a mattis nisl laoreet ac. Pellentesque eleifend accumsan urna, non imperdiet urna porttitor et. Proin enim odio, laoreet ut maximus vitae, mattis sed enim. Sed volutpat lacus id mattis semper.
-
-Morbi ac purus id odio lobortis placerat. Morbi facilisis, ipsum vel ultrices sagittis, urna felis faucibus nulla, non ultricies velit mi sed mauris. Etiam lobortis, ex quis feugiat aliquet, velit sem porta turpis, id sodales dolor lectus sit amet nulla. Morbi et ex semper, gravida dolor non, lobortis quam. Aenean auctor id felis ut sagittis. Praesent a enim auctor, lacinia odio eu, feugiat justo. Maecenas orci odio, tincidunt id mollis quis, iaculis id velit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae orci at nulla sollicitudin ornare vitae eu turpis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse dictum leo nec nulla consectetur, accumsan lacinia est semper.
-
-Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id interdum est. Morbi suscipit augue in ex maximus pharetra. Proin ultricies dui a orci blandit, quis vestibulum nulla lacinia. Nulla placerat tellus ut auctor vulputate. Nunc quis nunc fermentum, suscipit nisi vel, cursus sapien. Curabitur mattis ultrices pulvinar. Vivamus tristique, massa in laoreet tincidunt, odio mauris hendrerit neque, sit amet vestibulum eros ex nec tortor. Fusce euismod aliquet metus sed dapibus. Suspendisse ac libero nisi. Praesent eros libero, semper at leo vel, maximus tristique massa. Integer imperdiet ipsum ut diam volutpat, ut blandit arcu dapibus. Nulla facilisi. In tincidunt in quam et luctus.`,
-  }))
-  reviewArr.forEach((item) => {
-    reviewItems.value.push(item)
-  })
-  const collectionsArr = Array.from({ length: 55 }, (_, index) => ({
-    id: index + 1,
-    name: `Name ${index + 1}`,
-  }))
-  collectionsArr.forEach((item) => {
-    userCollections.value.push(item)
-  })
+  loadMoreCelebrities()
+  loadContentReviews()
+  loadContentInfo()
+  if (authStore.isLoggedIn) {
+    loadUserCollections()
+    loadRating()
+  }
 })
 </script>
 
@@ -81,25 +204,25 @@ Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id i
   <div class="content">
     <div id="upper-content" class="horizontal-container">
       <div class="img-container">
-        <img id="poster" src="/src/assets/images/placeholder.jpg" alt="poster">
+        <img id="poster" :src="contentInfo.image" alt="poster" />
       </div>
       <div class="content-container">
-        <h1 id="content-name">{{ `Название ${props.id}` }}</h1>
+        <h1 id="content-name">{{ contentInfo.name }}</h1>
         <div id="rating-values" class="horizontal-container">
           <div class="rating">
-            <div id="rt-kp">8.0</div>
-            <img class="service-icons" src="/src/assets/icons/kp.svg" alt="ico-kp">
+            <div id="rt-kp">{{ contentInfo.ratingKinopoisk }}</div>
+            <img class="service-icons" src="/src/assets/icons/kp.svg" alt="ico-kp" />
           </div>
           <div class="rating">
-            <div id="rt-imdb">8.0</div>
-            <img class="service-icons" src="/src/assets/icons/imdb.svg" alt="ico-imdb">
+            <div id="rt-imdb">{{ contentInfo.ratingImdb }}</div>
+            <img class="service-icons" src="/src/assets/icons/imdb.svg" alt="ico-imdb" />
           </div>
           <div class="rating">
-            <div id="rt-mvstsh">8.0</div>
+            <div id="rt-mvstsh">{{ contentInfo.rating }}</div>
             <md-icon slot="icon">movie</md-icon>
           </div>
         </div>
-        <div id="action-buttons" class="horizontal-container">
+        <div id="action-buttons" class="horizontal-container" v-if="authStore.isLoggedIn">
           <md-filled-button @click="showAddDialog">
             Добавить
             <md-icon slot="icon">create_new_folder</md-icon>
@@ -113,37 +236,37 @@ Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id i
       <div class="movie-info">
         <h1 id="about-mov">О фильме</h1>
         <p id="content-description">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          {{ contentInfo.description }}
         </p>
         <div class="horizontal-container">
           <md-icon slot="icon">theater_comedy</md-icon>
-          <div class="property">Жанры: </div>
-          <div id="genres" class="value">2000000 $</div>
+          <div class="property">Жанры:</div>
+          <div id="genres" class="value">{{ contentInfo.genres }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">language</md-icon>
-          <div class="property">Страна производства: </div>
-          <div id="country" class="value">Страна</div>
+          <div class="property">Страна производства:</div>
+          <div id="country" class="value">{{ contentInfo.countries }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">event</md-icon>
-          <div class="property">Дата выхода: </div>
-          <div id="release-date" class="value">00.00.0000</div>
+          <div class="property">Дата выхода:</div>
+          <div id="release-date" class="value">{{ contentInfo.releaseDate }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">schedule</md-icon>
-          <div class="property">Продолжительность: </div>
-          <div id="duration" class="value">02:00:00</div>
+          <div class="property">Продолжительность:</div>
+          <div id="duration" class="value">{{ contentInfo.duration }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">pie_chart</md-icon>
-          <div class="property">Бюджет: </div>
-          <div id="budget" class="value">1000000 $</div>
+          <div class="property">Бюджет:</div>
+          <div id="budget" class="value">${{ contentInfo.budget }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">attach_money</md-icon>
-          <div class="property">Сборы: </div>
-          <div id="box-office" class="value">2000000 $</div>
+          <div class="property">Сборы:</div>
+          <div id="box-office" class="value">${{ contentInfo.boxOffice }}</div>
         </div>
       </div>
     </div>
@@ -152,18 +275,19 @@ Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id i
       :modules="[Navigation, Mousewheel]"
       :mousewheel="true"
       :navigation="true"
-      :spaceBetween=12
+      :spaceBetween="12"
       class="my-swiper"
       slidesPerView="auto"
+      @reachEnd="loadMoreCelebrities"
     >
       <SwiperSlide
-        v-for="item in personItems"
+        v-for="item in swiperCelebritiesItems"
         :key="item.id"
         class="person-container"
         @click="router.push(`/person/${item.id}`)"
       >
         <div class="image-container">
-          <img :src="item.src" alt="Description 1">
+          <img :src="item.image" alt="person image" />
         </div>
         <div class="person-name">{{ item.name }}</div>
         <div class="person-role">{{ item.role }}</div>
@@ -172,11 +296,18 @@ Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id i
     <md-dialog id="rate-dialog" ref="rateDialogRef">
       <div slot="headline">Поставьте оценку</div>
       <form slot="content" id="form-id" method="dialog">
-        <md-slider step="1" ticks value="0" min="0" max="10"></md-slider>
+        <md-slider
+          step="1"
+          ticks
+          min="0"
+          max="10"
+          ref="ratingSlider"
+          :value="ratingValue"
+        ></md-slider>
       </form>
       <div slot="actions">
         <md-text-button form="form-id" value="cancel">Отмена</md-text-button>
-        <md-text-button form="form-id" value="ok">Ок</md-text-button>
+        <md-text-button form="form-id" value="ok" @click="rateContent">Ок</md-text-button>
       </div>
     </md-dialog>
     <md-dialog id="collections-dialog" ref="addDialogRef">
@@ -185,7 +316,7 @@ Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id i
         slot="content"
         class="user-collection"
         v-for="item in userCollections"
-        @click="notifySuccess(`Фильм успешно добавлен!`)"
+        @click="addContentToCollection(item)"
       >
         <p>{{ item.name }}</p>
       </div>
@@ -194,15 +325,19 @@ Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id i
     <Review
       v-for="item in reviewItems"
       :key="item.id"
-      :author="item.author"
+      :reviewId="item.id"
+      :author="item.userName"
       :date="item.date"
       :title="item.title"
-      :description="item.desc"
+      :description="item.description"
+      :actionsVisibility="item.actions"
+      :delete-action="item.deleteAction"
     >
     </Review>
-    <div class="review-actions">
+    <div class="review-actions" v-if="!reviewAdded">
       <md-text-button
-        @click="router.push('/review/add')"
+        @click="router.push({ path: '/review/add', query: { content_id: 1 } })"
+        v-if="authStore.isLoggedIn"
       >
         Добавить
       </md-text-button>
@@ -211,8 +346,8 @@ Morbi sed posuere nunc. Cras maximus purus at lorem tempor dignissim. Donec id i
 </template>
 
 <style scoped>
-
-#content-name, #about-mov {
+#content-name,
+#about-mov {
   text-align: center;
   margin-top: 0;
 }
@@ -333,6 +468,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: pointer;
 }
 
 .image-container {
@@ -352,21 +488,8 @@ body {
   user-select: none;
 }
 
-md-dialog {
-  align-self: center;
-  --md-dialog-container-color: var(--secondary-color);
-  --md-dialog-headline-color: var(--icon-color);
-}
-
-md-slider {
-  --md-slider-active-track-color: var(--focus-color);
-  --md-slider-handle-color: var(--focus-color);
-  --md-slider-pressed-handle-color: var(--focus-color);
-  --md-slider-hover-handle-color: var(--focus-color);
-  --md-slider-focus-handle-color: var(--focus-color);
-}
-
-.person-name, .person-role {
+.person-name,
+.person-role {
   text-align: center;
   width: 110px;
 }
@@ -388,8 +511,13 @@ md-slider {
   margin: 12px 20px;
 }
 
-@media screen and (max-width: 480px) {
+.review-form {
+  justify-self: center;
+  border-radius: 16px;
+  border: 1px solid var(--secondary-color);
+}
 
+@media screen and (max-width: 480px) {
   h1 {
     font-size: 24px;
     margin-left: 0;

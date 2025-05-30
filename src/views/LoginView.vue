@@ -2,23 +2,58 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore.js'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
+const authStore = useAuthStore()
 const router = useRouter()
 const passwordVisible = ref(false)
+const userLogin = ref('')
+const userPassword = ref('')
+
+async function tryLogin() {
+  const error = await authStore.login(userLogin.value, userPassword.value)
+  if (error) {
+    let text = 'Не удалось выполнить вход!'
+    switch (error.status) {
+      case 404:
+        text = 'Пользователь не найден!'
+        break
+      case 401:
+        text = 'Введен неверный пароль!'
+        break
+    }
+    toast.error(text, {
+      position: toast.POSITION.TOP_RIGHT,
+      theme: 'dark',
+    });
+  }
+  else
+    await router.replace('/account')
+}
+
+function loginChanged(event) {
+  userLogin.value = event.target.value
+}
+
+function passwordChanged(event) {
+  userPassword.value = event.target.value
+}
 </script>
 
 <template>
   <div class="content">
     <div class="login-panel">
-      <md-outlined-text-field label="Логин"> </md-outlined-text-field>
-      <md-outlined-text-field :type="passwordVisible ? `text` : `password`" label="Пароль">
+      <md-outlined-text-field label="Логин" @input="loginChanged"> </md-outlined-text-field>
+      <md-outlined-text-field :type="passwordVisible ? `text` : `password`" label="Пароль" @input="passwordChanged">
         <md-icon-button toggle slot="trailing-icon" @click="passwordVisible = !passwordVisible">
           <md-icon>visibility</md-icon>
           <md-icon slot="selected">visibility_off</md-icon>
         </md-icon-button>
       </md-outlined-text-field>
       <div class="horizontal-container">
-        <md-filled-button @click="router.replace(`/account`)"> Вход </md-filled-button>
+        <md-filled-button @click="tryLogin"> Вход </md-filled-button>
         <RouterLink to="/register">
           <md-filled-button>Регистрация</md-filled-button>
         </RouterLink>
