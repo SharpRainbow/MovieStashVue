@@ -92,17 +92,22 @@ onMounted(() => {
 <template>
   <div class="content">
     <div class="search-container">
-      <input type="text" class="search-input" placeholder="Поиск" v-model="searchText" />
+      <input
+        type="text"
+        class="search-input"
+        :placeholder="$t(`fields.search.placeholder`)"
+        v-model="searchText"
+      />
       <button class="close-button" @click="searchText = ''">&times;</button>
     </div>
     <md-tabs id="search-tabs" @change="onTabChange">
       <md-primary-tab>
         <md-icon slot="icon">theaters</md-icon>
-        Фильмы
+        {{ $t(`labels.search.movies`) }}
       </md-primary-tab>
       <md-primary-tab>
         <md-icon slot="icon">cinematic_blur</md-icon>
-        Знаменитости
+        {{ $t(`labels.search.celebrities`) }}
       </md-primary-tab>
     </md-tabs>
     <md-linear-progress id="load-indicator" indeterminate></md-linear-progress>

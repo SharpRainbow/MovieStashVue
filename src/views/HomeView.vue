@@ -50,7 +50,7 @@ onMounted(() => {
 
 <template>
   <div class="content">
-    <h1 class="section-name">Популярно сейчас</h1>
+    <h1 class="section-name">{{ $t(`labels.home.popular`) }}</h1>
     <Swiper
       :modules="[Navigation, Mousewheel]"
       :mousewheel="true"
@@ -69,7 +69,7 @@ onMounted(() => {
         <img :src="item.image" :alt="item.name" />
       </SwiperSlide>
     </Swiper>
-    <h1 class="section-name">Выбор редакторов</h1>
+    <h1 class="section-name">{{ $t(`labels.home.collections`) }}</h1>
     <Swiper
       :modules="[Navigation, Mousewheel]"
       :mousewheel="true"
@@ -91,7 +91,7 @@ onMounted(() => {
         </CollectionItem>
       </SwiperSlide>
     </Swiper>
-    <h1 class="section-name">Последние новости</h1>
+    <h1 class="section-name">{{ $t(`labels.home.news`) }}</h1>
     <div class="news-list">
       <news-item
         v-for="item in newsItems"

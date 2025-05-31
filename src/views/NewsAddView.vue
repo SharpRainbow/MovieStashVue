@@ -34,7 +34,7 @@ const handleImageUpload = (event) => {
       type="text"
       class="news-title"
       v-model="newData.title"
-      placeholder="Заголовок новости"
+      :placeholder="$t(`fields.news.placeholder.title`)"
     />
     <input
       type="file"
@@ -51,13 +51,13 @@ const handleImageUpload = (event) => {
       alt="news image"
     />
     <textarea
-      placeholder="Текст новости..."
+      :placeholder="$t(`fields.news.placeholder.desc`)"
       v-model="newData.description"
       @input="autoResize"
     ></textarea>
     <div class="news-actions">
-      <md-text-button>Отмена</md-text-button>
-      <md-filled-button :disabled="!newsSavable">Опубликовать</md-filled-button>
+      <md-text-button>{{ $t(`buttons.cancel`) }}</md-text-button>
+      <md-filled-button :disabled="!newsSavable">{{ $t(`buttons.publish`) }}</md-filled-button>
     </div>
   </div>
 </template>

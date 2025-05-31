@@ -45,17 +45,28 @@ function passwordChanged(event) {
 <template>
   <div class="content">
     <div class="login-panel">
-      <md-outlined-text-field label="Логин" @input="loginChanged"> </md-outlined-text-field>
-      <md-outlined-text-field :type="passwordVisible ? `text` : `password`" label="Пароль" @input="passwordChanged">
+      <md-outlined-text-field
+        :label="$t(`fields.login.label`)"
+        @input="loginChanged">
+      </md-outlined-text-field>
+      <md-outlined-text-field
+        :type="passwordVisible ? `text` : `password`"
+        :label="$t(`fields.password.label`)"
+        @input="passwordChanged"
+      >
         <md-icon-button toggle slot="trailing-icon" @click="passwordVisible = !passwordVisible">
           <md-icon>visibility</md-icon>
           <md-icon slot="selected">visibility_off</md-icon>
         </md-icon-button>
       </md-outlined-text-field>
       <div class="horizontal-container">
-        <md-filled-button @click="tryLogin"> Вход </md-filled-button>
+        <md-filled-button @click="tryLogin">
+          {{ $t(`buttons.login`) }}
+        </md-filled-button>
         <RouterLink to="/register">
-          <md-filled-button>Регистрация</md-filled-button>
+          <md-filled-button>
+            {{ $t(`buttons.register`) }}
+          </md-filled-button>
         </RouterLink>
       </div>
     </div>

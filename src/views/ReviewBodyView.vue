@@ -45,7 +45,7 @@ onMounted(() => {
   <div class="view-content">
     <div class="review-info">
       <p>
-        {{ reviewData.userName }} оставил оценку
+        {{ reviewData.userName }} {{ $t(`labels.review.added_review`) }}
         <span :style="{color: opinionColor}">
           {{ reviewData?.opinion?.name }}
         </span>

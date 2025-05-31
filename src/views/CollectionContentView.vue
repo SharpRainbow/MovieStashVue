@@ -69,11 +69,11 @@ async function removeContent(content) {
       { headers: { Authorization: `Bearer ${authStore.token}` } },
     )
     if (removeContentResponse.status === 200) {
-      notifySuccess(t(`notifications.content.updated`))
+      notifySuccess(t(`notifications.collection.updated`))
       resetContentList()
     }
   } catch (error) {
-    notifyError(t(`notifications.content.update_error`))
+    notifyError(t(`notifications.collection.update_error`))
   }
 }
 
@@ -166,16 +166,16 @@ onMounted(() => {
     </div>
   </div>
   <md-dialog ref="deleteContentDialogRef">
-    <div slot="headline">{{ $t(`dialogs.content.delete_header`) }}</div>
+    <div slot="headline">{{ $t(`dialogs.content.delete.header`) }}</div>
     <form slot="content" id="remove-dialog" method="dialog">
-      {{ $t(`dialogs.content.delete_message`, { name: selectedContentData?.name }) }}
+      {{ $t(`dialogs.content.delete.message`, { name: selectedContentData?.name }) }}
     </form>
     <div slot="actions">
       <md-text-button form="remove-dialog">{{
-        $t(`dialogs.content.delete_cancel`)
+        $t(`buttons.cancel`)
       }}</md-text-button>
       <md-filled-button form="remove-dialog" @click="confirmRemoval(removeContent)">
-        {{ $t(`dialogs.content.delete_ok`) }}
+        {{ $t(`buttons.ok`) }}
       </md-filled-button>
     </div>
   </md-dialog>

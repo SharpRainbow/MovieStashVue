@@ -69,7 +69,7 @@ onMounted(() => {
         <div class="horizontal-container" v-if="personData.birthday">
           <md-icon slot="icon">event</md-icon>
           <div class="property">
-            {{ !personData.death ? 'Дата рождения:' : 'Годы жизни:' }}
+            {{ !personData.death ? $t(`labels.person.birth`) : $t(`labels.person.life`) }}
           </div>
           <div class="value">
             {{
@@ -81,17 +81,17 @@ onMounted(() => {
         </div>
         <div class="horizontal-container" v-if="personData.birthplace">
           <md-icon slot="icon">language</md-icon>
-          <div class="property">Место рождения:</div>
+          <div class="property">{{ $t(`labels.person.country`) }}</div>
           <div class="value">{{ personData.birthplace }}</div>
         </div>
         <div class="horizontal-container" v-if="personData.height">
           <md-icon slot="icon">height</md-icon>
-          <div class="property">Рост:</div>
+          <div class="property">{{ $t(`labels.person.height`) }}</div>
           <div class="value">{{ `${personData.height} см` }}</div>
         </div>
       </div>
     </div>
-    <h1 class="main-page-text">Фильмография</h1>
+    <h1 class="main-page-text">{{ $t(`labels.person.contents`) }}</h1>
     <Swiper
       :modules="[Navigation, Mousewheel]"
       :mousewheel="true"

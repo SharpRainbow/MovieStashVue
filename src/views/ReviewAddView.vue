@@ -112,9 +112,9 @@ onMounted(() => {
       @input="autoResize"
     ></textarea>
     <div class="review-actions">
-      <md-text-button>Отмена</md-text-button>
+      <md-text-button>{{ $t(`buttons.cancel`) }}</md-text-button>
       <md-filled-button :disabled="!reviewSavable" @click="postReview">
-        Опубликовать
+        {{ $t(`buttons.publish`) }}
       </md-filled-button>
     </div>
   </div>

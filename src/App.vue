@@ -25,7 +25,7 @@ const accountLink = computed(() => {
             <div class="icon-container">
               <md-icon slot="icon">home</md-icon>
             </div>
-            <span class="nav-label">Главная</span>
+            <span class="nav-label">{{ $t(`labels.main.home`) }}</span>
           </div>
         </RouterLink>
         <RouterLink to="/collections">
@@ -33,7 +33,7 @@ const accountLink = computed(() => {
             <div class="icon-container">
               <md-icon slot="icon">collections_bookmark</md-icon>
             </div>
-            <span class="nav-label">Подборки</span>
+            <span class="nav-label">{{ $t(`labels.main.collections`) }}</span>
           </div>
         </RouterLink>
       </div>
@@ -43,7 +43,7 @@ const accountLink = computed(() => {
           <div class="icon-container">
             <md-icon slot="icon">newsmode</md-icon>
           </div>
-          <span class="nav-label">Новости</span>
+          <span class="nav-label">{{ $t(`labels.main.news`) }}</span>
         </div>
         </RouterLink>
         <RouterLink :to="accountLink">
@@ -51,7 +51,7 @@ const accountLink = computed(() => {
           <div class="icon-container">
             <md-icon slot="icon">person</md-icon>
           </div>
-          <span class="nav-label">Аккаунт</span>
+          <span class="nav-label">{{ $t(`labels.main.account`) }}</span>
         </div>
         </RouterLink>
       </div>
@@ -85,10 +85,10 @@ const accountLink = computed(() => {
               </a>
             </div>
             <nav class="footer-nav">
-              <a href="/">Главная</a>
-              <a href="/about">Подборки</a>
-              <a>Новости</a>
-              <a>Аккаунт</a>
+              <RouterLink to="/">{{ $t(`labels.main.home`) }}</RouterLink>
+              <RouterLink to="/collections">{{ $t(`labels.main.collections`) }}</RouterLink>
+              <RouterLink to="/news">{{ $t(`labels.main.news`) }}</RouterLink>
+              <RouterLink :to="accountLink">{{ $t(`labels.main.account`) }}</RouterLink>
             </nav>
           </div>
         </div>

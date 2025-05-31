@@ -61,19 +61,34 @@ function nicknameChanged(event) {
 <template>
   <div class="content">
     <div class="reg-panel">
-      <md-outlined-text-field label="Логин" @input="loginChanged">
+      <md-outlined-text-field
+        :label="$t(`fields.login.label`)"
+        @input="loginChanged"
+      >
       </md-outlined-text-field>
-      <md-outlined-text-field :type="passwordVisible ? `text` : `password`" label="Пароль" @input="passwordChanged">
+      <md-outlined-text-field
+        :type="passwordVisible ? `text` : `password`"
+        :label="$t(`fields.password.label`)"
+        @input="passwordChanged">
         <md-icon-button toggle slot="trailing-icon" @click="passwordVisible = !passwordVisible">
           <md-icon>visibility</md-icon>
           <md-icon slot="selected">visibility_off</md-icon>
         </md-icon-button>
       </md-outlined-text-field>
-      <md-outlined-text-field type="email" label="E-mail" @input="emailChanged">
+      <md-outlined-text-field
+        type="email"
+        :label="$t(`fields.email.label`)"
+        @input="emailChanged"
+      >
       </md-outlined-text-field>
-      <md-outlined-text-field label="Никнейм" @input="nicknameChanged">
+      <md-outlined-text-field
+        :label="$t(`fields.nickname.label`)"
+        @input="nicknameChanged"
+      >
       </md-outlined-text-field>
-      <md-filled-button :disabled="!dataProvided" @click="tryRegister">Зарегистрироваться</md-filled-button>
+      <md-filled-button :disabled="!dataProvided" @click="tryRegister">
+        {{ $t(`buttons.register_action`) }}
+      </md-filled-button>
     </div>
   </div>
 </template>

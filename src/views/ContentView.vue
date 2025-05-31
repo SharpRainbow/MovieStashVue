@@ -10,7 +10,9 @@ import axios from 'axios'
 import { useSwiperData } from '@/composables/useSwiperData.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { notifyError, notifySuccess, notifyInfo } from '@/utils/notifications.js'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
@@ -58,7 +60,7 @@ function showRateDialog() {
 
 function showAddDialog() {
   if (userCollections.value.length <= 0) {
-    notifyInfo('Для добавления фильма создайте коллекцию!')
+    notifyInfo(t('notifications.content.no_collection'))
     return
   }
   addDialogRef.value.show()
@@ -75,7 +77,7 @@ async function removeReview(reviewId) {
     }
   } catch (error) {
     console.error(error)
-    notifyError('Не удалось удалить рецензию!')
+    notifyError(t('notifications.content.review_delete_error'))
   }
 }
 
@@ -87,11 +89,11 @@ async function addContentToCollection(collection) {
       { headers: { Authorization: `Bearer ${authStore.token}` } },
     )
     if (addToCollectionResponse.status === 201) {
-      notifySuccess('Коллекция обновлена!')
+      notifySuccess(t('notifications.content.updated'))
     }
   } catch (error) {
     console.error(error)
-    notifyError('Не удалось добавить фильм в коллекцию!')
+    notifyError(t('notifications.content.updated_error'))
   }
   addDialogRef.value.close()
 }
@@ -134,7 +136,7 @@ async function loadContentReviews() {
       reviewItems.value.push(...request.data)
     }
   } catch (err) {
-    notifyError('Не удалось загрузить рецензии!')
+    console.error(err)
   }
 }
 
@@ -177,9 +179,12 @@ async function rateContent() {
         { headers: { Authorization: `Bearer ${authStore.token}` } },
       )
     }
-    if (request.status === 200) await loadRating()
+    if (request.status === 200) {
+      await loadRating()
+      notifySuccess(t('notifications.content.rated'))
+    }
   } catch (err) {
-    notifyError('Не удалось поставить оценку!')
+    notifyError(t('notifications.content.rated_error'))
   }
 }
 
@@ -224,53 +229,53 @@ onMounted(() => {
         </div>
         <div id="action-buttons" class="horizontal-container" v-if="authStore.isLoggedIn">
           <md-filled-button @click="showAddDialog">
-            Добавить
+            {{ $t('buttons.add') }}
             <md-icon slot="icon">create_new_folder</md-icon>
           </md-filled-button>
           <md-filled-button @click="showRateDialog">
-            Оценить
+            {{ $t('buttons.rate') }}
             <md-icon slot="icon">star</md-icon>
           </md-filled-button>
         </div>
       </div>
       <div class="movie-info">
-        <h1 id="about-mov">О фильме</h1>
+        <h1 id="about-mov">{{ $t('labels.content.info') }}</h1>
         <p id="content-description">
           {{ contentInfo.description }}
         </p>
         <div class="horizontal-container">
           <md-icon slot="icon">theater_comedy</md-icon>
-          <div class="property">Жанры:</div>
+          <div class="property">{{ $t('labels.content.genre') }}</div>
           <div id="genres" class="value">{{ contentInfo.genres }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">language</md-icon>
-          <div class="property">Страна производства:</div>
+          <div class="property">{{ $t('labels.content.country') }}</div>
           <div id="country" class="value">{{ contentInfo.countries }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">event</md-icon>
-          <div class="property">Дата выхода:</div>
+          <div class="property">{{ $t('labels.content.date') }}</div>
           <div id="release-date" class="value">{{ contentInfo.releaseDate }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">schedule</md-icon>
-          <div class="property">Продолжительность:</div>
+          <div class="property">{{ $t('labels.content.time') }}</div>
           <div id="duration" class="value">{{ contentInfo.duration }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">pie_chart</md-icon>
-          <div class="property">Бюджет:</div>
+          <div class="property">{{ $t('labels.content.budget') }}</div>
           <div id="budget" class="value">${{ contentInfo.budget }}</div>
         </div>
         <div class="horizontal-container">
           <md-icon slot="icon">attach_money</md-icon>
-          <div class="property">Сборы:</div>
+          <div class="property">{{ $t('labels.content.box') }}</div>
           <div id="box-office" class="value">${{ contentInfo.boxOffice }}</div>
         </div>
       </div>
     </div>
-    <h1 class="main-page-text">Актерский состав</h1>
+    <h1 class="main-page-text">{{ $t('labels.content.actors') }}</h1>
     <Swiper
       :modules="[Navigation, Mousewheel]"
       :mousewheel="true"
@@ -294,7 +299,7 @@ onMounted(() => {
       </SwiperSlide>
     </Swiper>
     <md-dialog id="rate-dialog" ref="rateDialogRef">
-      <div slot="headline">Поставьте оценку</div>
+      <div slot="headline">{{ $t(`dialogs.content.rate.header`) }}</div>
       <form slot="content" id="form-id" method="dialog">
         <md-slider
           step="1"
@@ -306,12 +311,16 @@ onMounted(() => {
         ></md-slider>
       </form>
       <div slot="actions">
-        <md-text-button form="form-id" value="cancel">Отмена</md-text-button>
-        <md-text-button form="form-id" value="ok" @click="rateContent">Ок</md-text-button>
+        <md-text-button form="form-id" value="cancel">
+          {{ $t(`buttons.cancel`) }}
+        </md-text-button>
+        <md-text-button form="form-id" value="ok" @click="rateContent">
+          {{ $t(`buttons.ok`) }}
+        </md-text-button>
       </div>
     </md-dialog>
     <md-dialog id="collections-dialog" ref="addDialogRef">
-      <div slot="headline">Выберите коллекцию</div>
+      <div slot="headline">{{ $t(`dialogs.content.add.header`) }}</div>
       <div
         slot="content"
         class="user-collection"
@@ -321,7 +330,7 @@ onMounted(() => {
         <p>{{ item.name }}</p>
       </div>
     </md-dialog>
-    <h1 class="main-page-text">Отзывы</h1>
+    <h1 class="main-page-text">{{ $t('labels.content.reviews') }}</h1>
     <div class="review-list">
       <Review
         @click="router.push(`/reviews/${item.id}`)"

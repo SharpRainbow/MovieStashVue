@@ -73,7 +73,7 @@ const {
     <div class="review-body" @click="clickAction">
       <div class="review-info">
         <p>
-          {{ props.author }} оставил оценку
+          {{ props.author }} {{ $t(`labels.review.added_review`) }}
           <span :style="{color: opinionColor}">
           {{ props.type }}
         </span>

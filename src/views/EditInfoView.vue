@@ -86,10 +86,10 @@ onMounted(() => {
     <p>{{ $t(`fields.${route.params.property}.description`) }}</p>
     <div class="horizontal-container">
       <md-text-button @click="goBack">
-        Отмена
+        {{ $t(`buttons.cancel`) }}
       </md-text-button>
       <md-filled-button @click="updateUserData" :disabled="isSavable">
-        Сохранить
+        {{ $t(`buttons.save`) }}
       </md-filled-button>
     </div>
   </div>

@@ -192,7 +192,7 @@ watch(
   <md-dialog ref="deleteCollectionDialogRef">
     <div slot="headline">{{ $t('dialogs.collections.delete.header') }}</div>
     <form slot="content" id="remove-dialog" method="dialog">
-      {{ $t('dialogs.collections.delete.message', { name: selectedCollectionData.name }) }}
+      {{ $t('dialogs.collections.delete.message', { name: selectedCollectionData?.name }) }}
     </form>
     <div slot="actions">
       <md-text-button form="remove-dialog">{{ $t('buttons.cancel') }}</md-text-button>
