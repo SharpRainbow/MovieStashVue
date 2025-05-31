@@ -10,26 +10,9 @@ import NewsItem from '@/components/NewsItem.vue'
 import CollectionItem from '@/components/CollectionItem.vue'
 import axios from 'axios'
 
-// const contentItems = ref([])
-// const collectionItems = ref([])
 const newsItems = ref([])
 
 const router = useRouter()
-
-// async function fetchContents(page) {
-//   try {
-//     const response = await axios.get("https://168882.msk.web.highserver.ru/api/v1/contents?page=1&limit=20")
-//     response.data.forEach(item => {
-//       contentItems.value.push(item)
-//     })
-//   } catch (err) {
-//     console.log(err)
-//   }
-// }
-//
-// function endReached() {
-//   console.log('endReached')
-// }
 
 const {
   items: swiperContentItems,
@@ -59,33 +42,8 @@ async function fetchRecentNews() {
 }
 
 onMounted(() => {
-  // const contentArr = Array.from({ length: 15 }, (_, index) => ({
-  //   id: index + 1,
-  //   src: `https://avatars.mds.yandex.net/get-kinopoisk-image/1946459/69a24e4b-d83e-4753-9cb4-f5aacdbc59f3/1920x`,
-  //   alt: `desc${index + 1}`,
-  // }))
   loadMoreContents()
-  // contentArr.forEach((item) => {
-  //   contentItems.value.push(item)
-  // })
-  // const collectionArr = Array.from({ length: 15 }, (_, index) => ({
-  //   id: index + 1,
-  //   name: `collection${index + 1}`,
-  // }))
-  // collectionArr.forEach((item) => {
-  //   collectionItems.value.push(item)
-  // })
   loadMoreCollections()
-  // const newsArr = Array.from({ length: 5 }, (_, index) => ({
-  //   id: index + 1,
-  //   src: `/src/assets/images/placeholder.jpg`,
-  //   alt: `desc${index + 1}`,
-  //   title: "News title",
-  //   text: "Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet."
-  // }))
-  // newsArr.forEach((item) => {
-  //   newsItems.value.push(item)
-  // })
   fetchRecentNews()
 })
 </script>
@@ -124,7 +82,7 @@ onMounted(() => {
       <SwiperSlide
         v-for="item in swiperCollectionItems"
         :key="item.id"
-        @click="router.push(`/collection/genre/${item.id}`)"
+        @click="router.push(`/collections/genre/${item.id}`)"
         class="collection-container"
       >
         <CollectionItem
@@ -140,8 +98,8 @@ onMounted(() => {
         :key="item.id"
         @click="router.push(`/news/${item.id}`)"
         :title="item.title"
-        :text="item.text"
-        :image="item.src"
+        :text="item.description"
+        :image="item.image"
       >
       </news-item>
     </div>
@@ -151,7 +109,7 @@ onMounted(() => {
 <style scoped>
 
 .content {
-  max-width: 100vw; /* Prevent stretching */
+  max-width: 100vw;
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -187,7 +145,7 @@ body {
 .image-container img {
   width: 100%;
   height: 100%;
-  object-fit: fill; /* Ensure the image fits within container dimensions */
+  object-fit: fill;
   user-select: none;
 }
 
@@ -195,7 +153,7 @@ body {
   margin: 10px 30px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 @media screen and (max-device-width: 480px) {
@@ -212,12 +170,13 @@ body {
   }
 
   .news-list {
-    margin: 10px 12px;
+    margin: 12px 12px;
     font-size: 12px;
+    gap: 12px;
   }
 
   .my-swiper {
-    padding: 10px 12px;
+    padding: 12px 12px;
   }
 
   label {

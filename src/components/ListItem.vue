@@ -35,6 +35,14 @@ const props = defineProps({
   cursor: pointer;
 }
 
+.list-item-data h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .list-item-body img {
   height: 96px;
   aspect-ratio: 10 / 15;

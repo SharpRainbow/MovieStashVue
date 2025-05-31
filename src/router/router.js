@@ -51,17 +51,17 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/collection/personal/:id',
+      path: '/collections/personal/:id',
       component: () => import('../views/CollectionContentView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: '/collection/:id',
+      path: '/collections/:id',
       props: true,
       component: () => import('../views/CollectionContentView.vue'),
     },
     {
-      path: '/collection/genre/:id',
+      path: '/collections/genre/:id',
       props: true,
       component: () => import('../views/CollectionContentView.vue'),
       meta: { genre: true },
@@ -86,7 +86,15 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'moderator' },
     },
     {
-      path: '/review/add',
+      path: '/reviews',
+      component: () => import('../views/ReviewListView.vue'),
+    },
+    {
+      path: '/reviews/:id',
+      component: () => import('../views/ReviewBodyView.vue'),
+    },
+    {
+      path: '/reviews/add',
       component: () => import('../views/ReviewAddView.vue'),
       meta: { requiresAuth: true }
     }

@@ -89,7 +89,7 @@ function isPageActive(page) {
         @click="onClickFirstPage"
         :disabled="isInFirstPage"
       >
-        В начало
+        {{ $t('buttons.start_page') }}
       </md-text-button>
     </li>
 
@@ -126,7 +126,7 @@ function isPageActive(page) {
         @click="onClickNextPage"
         :disabled="isInLastPage"
       >
-        дальше
+        {{ $t('buttons.next_page') }}
       </md-text-button>
     </li>
 

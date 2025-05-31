@@ -8,11 +8,13 @@ import { useAuthStore } from '@/stores/authStore.js'
 import { useListData } from '@/composables/useListData.js'
 import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
 import { notifyError, notifySuccess } from '@/utils/notifications.js'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
-const collectionContentRoute = route.meta.requiresAuth ? '/collection/personal' : '/collection'
+const collectionContentRoute = route.meta.requiresAuth ? '/collections/personal' : '/collections'
 const createCollectionDialogRef = ref(null)
 const deleteCollectionDialogRef = ref(null)
 const itemLimit = 5
@@ -67,11 +69,11 @@ async function createCollection() {
       { headers: { Authorization: `Bearer ${authStore.token}` } },
     )
     if (createResponse.status === 201) {
-      notifySuccess('Подборка успешно добавлена!')
+      notifySuccess(t('notifications.collection.created'))
       resetCollectionsList()
     }
   } catch (error) {
-    notifyError('Не удалось создать подборку!')
+    notifyError(t('notifications.collection.created_error'))
   }
 }
 
@@ -120,11 +122,11 @@ async function removeCollection(collection) {
       { headers: { Authorization: `Bearer ${authStore.token}` } },
     )
     if (deleteResponse.status === 200) {
-      notifySuccess('Подборка удалена!')
+      notifySuccess(t('notifications.collection.deleted'))
       resetCollectionsList()
     }
   } catch (error) {
-    notifyError('Не удалось удалить подборку!')
+    notifyError(t('notifications.collection.deleted_error'))
   }
 }
 
@@ -149,7 +151,7 @@ watch(
         </CollectionItem>
         <div class="collection-description">
           <h2>{{ item.name }}</h2>
-          <p>{{ item.desc }}</p>
+          <p>{{ item.description }}</p>
         </div>
         <div class="icon-container" @click="showRemoveDialog(item)" v-if="route.meta.requiresAuth">
           <md-icon>close</md-icon>
@@ -157,7 +159,7 @@ watch(
       </div>
     </div>
     <div class="user-collection-actions" v-if="route.meta.requiresAuth">
-      <md-filled-button @click="showAddDialog">Добавить</md-filled-button>
+      <md-filled-button @click="showAddDialog">{{ $t('buttons.add') }}</md-filled-button>
     </div>
     <div class="pagination-wrapper">
       <pagination
@@ -169,33 +171,33 @@ watch(
     </div>
   </div>
   <md-dialog ref="createCollectionDialogRef">
-    <div slot="headline">Введите параметры подборки</div>
+    <div slot="headline">{{ $t('dialogs.collections.create.header') }}</div>
     <form slot="content" id="create-dialog" method="dialog">
-      <md-outlined-text-field label="Название" @input="collectionNameChanged">
+      <md-outlined-text-field :label="$t('dialogs.collections.create.name')" @input="collectionNameChanged">
       </md-outlined-text-field>
-      <md-outlined-text-field label="Описание" @input="collectionDescChanged">
+      <md-outlined-text-field :label="$t('dialogs.collections.create.description')" @input="collectionDescChanged">
       </md-outlined-text-field>
     </form>
     <div slot="actions">
-      <md-text-button form="create-dialog">Отмена</md-text-button>
+      <md-text-button form="create-dialog">{{ $t('buttons.cancel') }}</md-text-button>
       <md-filled-button
         form="create-dialog"
         :disabled="!collectionSavable"
         @click="createCollection"
       >
-        Ок
+        {{ $t('buttons.ok') }}
       </md-filled-button>
     </div>
   </md-dialog>
   <md-dialog ref="deleteCollectionDialogRef">
-    <div slot="headline">Удаление подборки</div>
+    <div slot="headline">{{ $t('dialogs.collections.delete.header') }}</div>
     <form slot="content" id="remove-dialog" method="dialog">
-      Подборка "{{ selectedCollectionData?.name }}" будет удалена! Продолжить?
+      {{ $t('dialogs.collections.delete.message', { name: selectedCollectionData.name }) }}
     </form>
     <div slot="actions">
-      <md-text-button form="remove-dialog">Отмена</md-text-button>
+      <md-text-button form="remove-dialog">{{ $t('buttons.cancel') }}</md-text-button>
       <md-filled-button form="remove-dialog" @click="confirmRemoval(removeCollection)">
-        Ок
+        {{ $t('buttons.ok') }}
       </md-filled-button>
     </div>
   </md-dialog>
@@ -222,7 +224,7 @@ watch(
   max-width: 500px;
 }
 
-.collection-description p {
+.collection-description > * {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

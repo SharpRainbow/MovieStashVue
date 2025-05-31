@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/authStore.js'
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const reviewId = ref(0)
 const reviewData = ref({
   content_id: Number(route.query.content_id) || 0,
   title: '',
@@ -26,14 +27,23 @@ const reviewSavable = computed(() => {
     reviewData.value.content_id > 0
 })
 
-async function createReview() {
+async function postReview() {
   try {
-    const createReviewResponse = await axios.post(
-      `https://168882.msk.web.highserver.ru/api/v1/reviews`,
-      reviewData.value,
-      { headers: { Authorization: `Bearer ${authStore.token}` }}
-    )
-    if (createReviewResponse.status === 201) {
+    let createReviewResponse
+    if (reviewId.value > 0) {
+      createReviewResponse = await axios.patch(
+        `https://168882.msk.web.highserver.ru/api/v1/reviews/${reviewId.value}`,
+        reviewData.value,
+        { headers: { Authorization: `Bearer ${authStore.token}` } }
+      )
+    } else {
+      createReviewResponse = await axios.post(
+        `https://168882.msk.web.highserver.ru/api/v1/reviews`,
+        reviewData.value,
+        { headers: { Authorization: `Bearer ${authStore.token}` } }
+      )
+    }
+    if (createReviewResponse.status === 201 || createReviewResponse.status === 200 ) {
       await router.replace(`/content/${reviewData.value.content_id}`)
       notifySuccess('Рецензия сохранена!')
     }
@@ -43,21 +53,40 @@ async function createReview() {
   }
 }
 
-onMounted(() => {
-  opinionOptions.value.push(...[
-    {
-      id: 1,
-      name: 'Плохо'
-    },
-    {
-      id: 2,
-      name: 'Нейтрально'
-    },
-    {
-      id: 3,
-      name: 'Хорошо'
+async function loadOpinionOptions() {
+  try {
+    const opinionResponse = await axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/opinions`
+    )
+    if (opinionResponse.status === 200) {
+      opinionOptions.value.push(...opinionResponse.data)
     }
-  ])
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function checkUserReviews() {
+  try {
+    const request = await axios.get(
+      `https://168882.msk.web.highserver.ru/api/v1/contents/${reviewData.value.content_id}/reviews?limit=1`,
+      { headers: { Authorization: `Bearer ${authStore.token}` } },
+    )
+    const review = request.data[0]
+    if (request.status === 200 && Number(authStore.user?.userId) === Number(review?.userId)) {
+      reviewData.value.title = review.title
+      reviewData.value.description = review.description
+      reviewData.value.opinion_id = review.opinion.id
+      reviewId.value = review.id
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+onMounted(() => {
+  loadOpinionOptions()
+  checkUserReviews()
 })
 </script>
 
@@ -84,7 +113,7 @@ onMounted(() => {
     ></textarea>
     <div class="review-actions">
       <md-text-button>Отмена</md-text-button>
-      <md-filled-button :disabled="!reviewSavable" @click="createReview">
+      <md-filled-button :disabled="!reviewSavable" @click="postReview">
         Опубликовать
       </md-filled-button>
     </div>

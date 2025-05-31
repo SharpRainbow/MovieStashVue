@@ -322,24 +322,33 @@ onMounted(() => {
       </div>
     </md-dialog>
     <h1 class="main-page-text">Отзывы</h1>
-    <Review
-      v-for="item in reviewItems"
-      :key="item.id"
-      :reviewId="item.id"
-      :author="item.userName"
-      :date="item.date"
-      :title="item.title"
-      :description="item.description"
-      :actionsVisibility="item.actions"
-      :delete-action="item.deleteAction"
-    >
-    </Review>
-    <div class="review-actions" v-if="!reviewAdded">
-      <md-text-button
-        @click="router.push({ path: '/review/add', query: { content_id: 1 } })"
-        v-if="authStore.isLoggedIn"
+    <div class="review-list">
+      <Review
+        @click="router.push(`/reviews/${item.id}`)"
+        v-for="item in reviewItems"
+        :key="item.id"
+        :reviewId="item.id"
+        :author="item.userName"
+        :type="item.opinion.name"
+        :date="item.date"
+        :title="item.title"
+        :description="item.description"
+        :actionsVisibility="item.actions"
+        :delete-action="item.deleteAction"
+        :change-action="() => router.push({ path: '/reviews/add', query: { content_id: route.params.id } })"
+        :click-action="() => router.push(`/reviews/${item.id}`)"
       >
-        Добавить
+      </Review>
+    </div>
+    <div class="review-actions">
+      <md-text-button @click="router.push({ path: '/reviews', query: { content_id: route.params.id } })">
+        {{ $t('buttons.more') }}
+      </md-text-button>
+      <md-text-button
+        @click="router.push({ path: '/reviews/add', query: { content_id: route.params.id } })"
+        v-if="authStore.isLoggedIn && !reviewAdded"
+      >
+        {{ $t('buttons.add') }}
       </md-text-button>
     </div>
   </div>
@@ -511,10 +520,11 @@ body {
   margin: 12px 20px;
 }
 
-.review-form {
-  justify-self: center;
-  border-radius: 16px;
-  border: 1px solid var(--secondary-color);
+.review-list {
+  gap: 16px;
+  margin: 20px 32px;
+  display: flex;
+  flex-direction: column;
 }
 
 @media screen and (max-width: 480px) {
@@ -568,6 +578,13 @@ body {
 
   .main-page-text {
     margin-left: 8px;
+  }
+
+  .review-list {
+    gap: 12px;
+    margin: 12px;
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>

@@ -9,9 +9,9 @@ const authStore = useAuthStore()
 const router = useRouter()
 
 const userData = ref({
-  login: 'Login',
-  email: 'example@email.com',
-  nickname: 'Nickname',
+  login: '',
+  email: '',
+  nickname: '',
 })
 
 function logOut() {
@@ -43,11 +43,11 @@ onMounted(() => {
 <template>
   <div class="content">
     <div class="container info">
-      <h2>Мои данные</h2>
+      <h2>{{ $t('labels.personal_info') }}</h2>
       <div class="pair">
         <div class="property">{{ $t(`fields.login.label`) }}</div>
         <div class="value">{{ userData.login }}</div>
-        <md-icon>chevron_right</md-icon>
+<!--        <md-icon>chevron_right</md-icon>-->
       </div>
       <div class="pair">
         <div class="property">{{ $t(`fields.email.label`) }}</div>
@@ -57,9 +57,9 @@ onMounted(() => {
         </RouterLink>
       </div>
       <div class="pair">
-        <div class="property">{{ $t(`fields.displayName.label`) }}</div>
+        <div class="property">{{ $t(`fields.nickname.label`) }}</div>
         <div class="value">{{ userData.nickname }}</div>
-        <RouterLink to="/account/displayName">
+        <RouterLink to="/account/nickname">
           <md-icon>chevron_right</md-icon>
         </RouterLink>
       </div>

@@ -1,6 +1,6 @@
 <script setup>
 import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps({
   reviewId: {
@@ -8,6 +8,10 @@ const props = defineProps({
     required: true
   },
   author: {
+    type: String,
+    required: true,
+  },
+  type: {
     type: String,
     required: true,
   },
@@ -36,9 +40,25 @@ const props = defineProps({
     type: Function,
     required: false,
     default: () => {}
+  },
+  clickAction: {
+    type: Function,
+    required: false,
+    default: () => {
+      console.log('click action')
+    }
   }
 })
 const removeReviewDialogRef = ref(null)
+
+const opinionColor = computed(() => {
+  if (props.type === 'Хорошо')
+    return '#76FF03'
+  else if (props.type === 'Плохо')
+    return '#FF1744'
+  else
+    return '#BDBDBD'
+})
 
 const {
   selectedItem: _,
@@ -50,12 +70,19 @@ const {
 
 <template>
   <div class="review-container">
-    <div class="review-info">
-      <p>{{ props.author }}</p>
-      <p>{{ props.date }}</p>
+    <div class="review-body" @click="clickAction">
+      <div class="review-info">
+        <p>
+          {{ props.author }} оставил оценку
+          <span :style="{color: opinionColor}">
+          {{ props.type }}
+        </span>
+        </p>
+        <p>{{ props.date }}</p>
+      </div>
+      <h3>{{ props.title }}</h3>
+      <p>{{ props.description }}</p>
     </div>
-    <h3>{{ props.title }}</h3>
-    <p>{{ props.description }}</p>
     <div class="review-actions" v-if="actionsVisibility">
       <md-filled-button @click="changeAction">
         Изменить
@@ -90,7 +117,10 @@ const {
   background-color: #272d36; /* Background color of the rectangle */
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
   padding: 0 16px;
-  margin: 20px 32px;
+}
+
+.review-body {
+  cursor: pointer;
 }
 
 .review-container p {
@@ -126,12 +156,9 @@ h3 {
 
 @media screen and (max-device-width: 480px) {
 
-  .review-container {
-    margin: 12px 12px;
-  }
-
   .review-container p {
     font-size: 12px;
   }
+
 }
 </style>

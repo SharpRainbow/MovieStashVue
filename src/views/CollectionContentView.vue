@@ -8,15 +8,17 @@ import { useListData } from '@/composables/useListData.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
 import { notifyError, notifySuccess } from '@/utils/notifications.js'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const itemLimit = 4
 const router = useRouter()
 const route = useRoute()
 const deleteContentDialogRef = ref(null)
 const collectionData = ref({
-  name: 'Collection name',
-  description: 'Collection description',
+  name: '',
+  description: '',
 })
 const {
   selectedItem: selectedContentData,
@@ -67,11 +69,11 @@ async function removeContent(content) {
       { headers: { Authorization: `Bearer ${authStore.token}` } },
     )
     if (removeContentResponse.status === 200) {
-      notifySuccess($t(`notifications.content.updated`))
+      notifySuccess(t(`notifications.content.updated`))
       resetContentList()
     }
   } catch (error) {
-    notifyError($t(`notifications.content.update_error`))
+    notifyError(t(`notifications.content.update_error`))
   }
 }
 
@@ -166,7 +168,7 @@ onMounted(() => {
   <md-dialog ref="deleteContentDialogRef">
     <div slot="headline">{{ $t(`dialogs.content.delete_header`) }}</div>
     <form slot="content" id="remove-dialog" method="dialog">
-      {{ $t(`dialogs.content.delete_message`) }}
+      {{ $t(`dialogs.content.delete_message`, { name: selectedContentData?.name }) }}
     </form>
     <div slot="actions">
       <md-text-button form="remove-dialog">{{
@@ -214,6 +216,8 @@ onMounted(() => {
   display: flex;
   gap: 16px;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .icon-container {
@@ -224,6 +228,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .icon-container:hover {

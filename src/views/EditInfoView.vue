@@ -1,15 +1,20 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore.js'
+import { notifySuccess, notifyError } from '@/utils/notifications.js'
+import { useI18n } from 'vue-i18n'
 
-const props = defineProps(['property'])
-
-const newValue = ref('')
-const isSavable = computed(() => newValue.value.trim() === '')
+const { t } = useI18n()
+const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+const activeData = ref('')
+const isSavable = computed(() => activeData.value.trim() === '')
 
 function onInput(e) {
-  newValue.value = e.target.value
+  activeData.value = e.target.value
 }
 
 function goBack() {
@@ -19,6 +24,46 @@ function goBack() {
     router.replace('/account')
   }
 }
+
+async function loadUserData() {
+  try {
+    const userDataResponse = await axios.get(
+      'https://168882.msk.web.highserver.ru/api/v1/users/personal',
+      {
+        headers: { Authorization: `Bearer ${authStore.token}` },
+      },
+    )
+    if (userDataResponse.status === 200) {
+      activeData.value = userDataResponse.data[`${route.params.property}`]
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function updateUserData() {
+  try {
+    const userDataResponse = await axios.patch(
+      'https://168882.msk.web.highserver.ru/api/v1/users/personal',
+      {
+        [route.params.property]: activeData.value,
+      },
+      {
+        headers: { Authorization: `Bearer ${authStore.token}` },
+      },
+    )
+    if (userDataResponse.status === 200) {
+      notifySuccess(t('notifications.profile.updated'))
+    }
+  } catch (error) {
+    console.error(error)
+    notifyError(t('notifications.profile.update_error'))
+  }
+}
+
+onMounted(() => {
+  loadUserData()
+})
 </script>
 
 <template>
@@ -28,20 +73,24 @@ function goBack() {
     <RouterLink to="/account" @click="goBack">
       <md-icon>chevron_left</md-icon>
     </RouterLink>
-    <h2>{{ $t(`fields.${props.property}.label`) }}</h2>
+    <h2>{{ $t(`fields.${route.params.property}.label`) }}</h2>
   </div>
   </div>
   <div class="container">
     <md-outlined-text-field
-      :label="$t(`fields.${property}.label`)"
-      :value="newValue"
+      :label="$t(`fields.${route.params.property}.label`)"
+      :value="activeData"
       @input="onInput"
     />
-    <h4>{{ $t(`fields.${props.property}.note`) }}</h4>
-    <p>{{ $t(`fields.${props.property}.description`) }}</p>
+    <h4>{{ $t(`fields.${route.params.property}.note`) }}</h4>
+    <p>{{ $t(`fields.${route.params.property}.description`) }}</p>
     <div class="horizontal-container">
-      <md-text-button>Отмена</md-text-button>
-      <md-filled-button :disabled="isSavable">Сохранить</md-filled-button>
+      <md-text-button @click="goBack">
+        Отмена
+      </md-text-button>
+      <md-filled-button @click="updateUserData" :disabled="isSavable">
+        Сохранить
+      </md-filled-button>
     </div>
   </div>
 </div>

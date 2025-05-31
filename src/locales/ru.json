@@ -10,7 +10,7 @@
       "note": "Как будет использоваться эта информация",
       "description": "Адрес электронной почты используется для связи и рассылок."
     },
-    "displayName": {
+    "nickname": {
       "label": "Псевдоним",
       "placeholder": "Shrp",
       "note": "Кто может видеть ваш псевдоним",
@@ -28,18 +28,37 @@
     }
   },
   "labels": {
-    "personalInfo": "Мои данные"
+    "personal_info": "Мои данные",
+    "movie_info": "О фильме",
+    "movie_genre": "Жанры:",
+    "movie_country":  "Страна производства:",
+    "movie_date": "Дата выхода:",
+    "movie_time": "Продолжительность:",
+    "movie_budget": "Бюджет:",
+    "movie_box": "Сборы:",
+    "movie_actors": "Актерский состав",
+    "movie_reviews": "Отзывы"
   },
   "notifications": {
     "content": {
       "updated": "Коллекция обновлена!",
       "update_error": "Не удалось удалить контент!"
+    },
+    "profile": {
+      "updated": "Данные обновлены!",
+      "update_error": "Не удалось обновить данные!"
+    },
+    "collection": {
+      "created": "Подборка успешно добавлена!",
+      "created_error": "Не удалось создать подборку!",
+      "deleted": "Подборка удалена!",
+      "deleted_error": "Не удалось удалить подборку!"
     }
   },
   "dialogs": {
     "content": {
       "delete_header": "Удаление контента",
-      "delete_message": "Фильм {name} будет удален! Продолжить?",
+      "delete_message": "Фильм '{name}' будет удален! Продолжить?",
       "delete_ok": "Ок",
       "delete_cancel": "Отмена"
     },
@@ -48,16 +67,31 @@
       "delete_message": "Рецензия будет удалена! Продолжить?",
       "delete_ok": "Ок",
       "delete_cancel": "Отмена"
+    },
+    "collections": {
+      "create": {
+        "header": "Введите параметры подборки",
+        "name": "Название",
+        "description": "Описание"
+      },
+      "delete": {
+        "header": "Удаление подборки",
+        "message": "Подборка '{name}' будет удалена! Продолжить?"
+      }
     }
   },
   "buttons": {
     "save": "Сохранить",
+    "ok": "Oк",
     "cancel": "Отмена",
     "exit": "Выйти",
     "add": "Добавить",
     "rate": "Оценить",
     "login": "Вход",
     "register": "Регистрация",
-    "user_collections": "Мои коллекции"
+    "more": "Больше",
+    "user_collections": "Мои коллекции",
+    "start_page": "В начало",
+    "next_page": "дальше"
   }
 }

@@ -1,22 +1,23 @@
 <script setup>
 import Pagination from '@/components/Pagination.vue'
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import NewsItem from '@/components/NewsItem.vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useListData } from '@/composables/useListData.js'
 import axios from 'axios'
+import Review from '@/components/Review.vue'
 
 const router = useRouter()
-const itemLimit = 5
+const route = useRoute()
+const itemLimit = 4
 
 const {
-  items: newsItems,
-  loadPage: loadMoreNewsItems,
+  items: reviewItems,
+  loadPage: loadMoreReviewItems,
   totalPages,
   currentPage,
 } = useListData((page) => {
   return axios.get(
-    `https://168882.msk.web.highserver.ru/api/v1/news?page=${page}&limit=${itemLimit}`,
+    `https://168882.msk.web.highserver.ru/api/v1/contents/${route.query.content_id}/reviews?page=${page}&limit=${itemLimit}`,
   )
 })
 
@@ -25,14 +26,14 @@ function onPageChange(page) {
   if (currentPage.value === totalPages.value) {
     calculatePages()
   }
-  loadMoreNewsItems()
+  loadMoreReviewItems()
 }
 
 async function calculatePages() {
   const pageNumber = currentPage.value > 1 ? Math.ceil(currentPage.value / 3) + 1 : 1
   try {
     const news = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/news?page=${pageNumber}&limit=${itemLimit * 3}`,
+      `https://168882.msk.web.highserver.ru/api/v1/contents/${route.query.content_id}/reviews?page=${pageNumber}&limit=${itemLimit * 3}`,
     )
     const items = news.data.length / itemLimit
     totalPages.value += Math.ceil(items)
@@ -43,22 +44,25 @@ async function calculatePages() {
 
 onMounted(() => {
   calculatePages()
-  loadMoreNewsItems()
+  loadMoreReviewItems()
 })
 </script>
 
 <template>
-  <div class="view-news">
-    <div class="news-list">
-      <news-item
-        v-for="item in newsItems"
+  <div class="view-reviews">
+    <div class="reviews-list">
+      <Review
+        v-for="item in reviewItems"
         :key="item.id"
-        @click="router.push(`/news/${item.id}`)"
+        :review-id="item.id"
         :title="item.title"
-        :text="item.description"
-        :image="item.image"
+        :description="item.description"
+        :type="item.opinion.name"
+        :date="item.date"
+        :author="item.userName"
+        :click-action="() => router.push(`/reviews/${item.id}`)"
       >
-      </news-item>
+      </Review>
     </div>
     <div class="pagination-wrapper">
       <pagination
@@ -73,7 +77,7 @@ onMounted(() => {
 
 <style scoped>
 
-.view-news {
+.view-reviews {
   display: flex;
   flex-direction: column;
   align-self: center;
@@ -91,25 +95,25 @@ onMounted(() => {
   width: 100%;
 }
 
-.news-list {
+.reviews-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   box-sizing: border-box;
-  padding: 20px 24px;
   border-radius: 16px;
   border: 1px solid var(--secondary-color);
   width: 100%;
   height: 100%;
+  gap: 16px;
+  padding: 20px 24px;
 }
 
 @media screen and (max-device-width: 480px) {
 
-  .view-news {
+  .view-reviews {
     padding: 0 12px;
   }
 
-  .news-list {
+  .reviews-list {
     border: 0;
     padding: 0;
     gap: 12px;
