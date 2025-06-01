@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 import { notifyError, notifySuccess } from '@/utils/notifications.js'
 import { useAuthStore } from '@/stores/authStore.js'
 
@@ -32,15 +32,13 @@ async function postReview() {
     let createReviewResponse
     if (reviewId.value > 0) {
       createReviewResponse = await axios.patch(
-        `https://168882.msk.web.highserver.ru/api/v1/reviews/${reviewId.value}`,
-        reviewData.value,
-        { headers: { Authorization: `Bearer ${authStore.token}` } }
+        `/reviews/${reviewId.value}`,
+        reviewData.value
       )
     } else {
       createReviewResponse = await axios.post(
-        `https://168882.msk.web.highserver.ru/api/v1/reviews`,
-        reviewData.value,
-        { headers: { Authorization: `Bearer ${authStore.token}` } }
+        `/reviews`,
+        reviewData.value
       )
     }
     if (createReviewResponse.status === 201 || createReviewResponse.status === 200 ) {
@@ -56,7 +54,7 @@ async function postReview() {
 async function loadOpinionOptions() {
   try {
     const opinionResponse = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/opinions`
+      `/opinions`
     )
     if (opinionResponse.status === 200) {
       opinionOptions.value.push(...opinionResponse.data)
@@ -69,8 +67,7 @@ async function loadOpinionOptions() {
 async function checkUserReviews() {
   try {
     const request = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/contents/${reviewData.value.content_id}/reviews?limit=1`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/contents/${reviewData.value.content_id}/reviews?limit=1`
     )
     const review = request.data[0]
     if (request.status === 200 && Number(authStore.user?.userId) === Number(review?.userId)) {

@@ -3,26 +3,19 @@ import { ref, onMounted, computed, watch } from 'vue'
 import Pagination from '@/components/Pagination.vue'
 import { useRouter, useRoute } from 'vue-router'
 import CollectionItem from '@/components/CollectionItem.vue'
-import axios from 'axios'
-import { useAuthStore } from '@/stores/authStore.js'
+import axios from '@/utils/axiosInstance.js'
 import { useListData } from '@/composables/useListData.js'
 import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
 import { notifyError, notifySuccess } from '@/utils/notifications.js'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const collectionContentRoute = route.meta.requiresAuth ? '/collections/personal' : '/collections'
 const createCollectionDialogRef = ref(null)
 const deleteCollectionDialogRef = ref(null)
 const itemLimit = 5
-const collectionName = ref('')
-const collectionDescription = ref('')
-const collectionSavable = computed(() => {
-  return collectionName.value
-})
 const {
   items: collectionItems,
   loadPage: loadMoreCollectionItems,
@@ -31,12 +24,11 @@ const {
 } = useListData((page) => {
   if (route.meta.requiresAuth) {
     return axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/collections/personal?page=${page}&limit=${itemLimit}`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/collections/personal?page=${page}&limit=${itemLimit}`
     )
   } else {
     return axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/collections?page=${page}&limit=${itemLimit}`,
+      `/collections?page=${page}&limit=${itemLimit}`
     )
   }
 })
@@ -46,6 +38,16 @@ const {
   confirmAction: confirmRemoval,
 } = useConfirmableAction(deleteCollectionDialogRef)
 
+const {
+  selectedItem: saveCollectionData,
+  requestAction: showSaveDialog,
+  confirmAction: confirmSaving,
+} = useConfirmableAction(createCollectionDialogRef)
+
+const collectionSavable = computed(() => {
+  return saveCollectionData?.value
+})
+
 function resetCollectionsList() {
   totalPages.value = 0
   currentPage.value = 1
@@ -54,35 +56,43 @@ function resetCollectionsList() {
   loadMoreCollectionItems()
 }
 
-function showAddDialog() {
-  createCollectionDialogRef.value.show()
-}
-
-async function createCollection() {
+async function createCollection(collection) {
   try {
-    const createResponse = await axios.post(
-      'https://168882.msk.web.highserver.ru/api/v1/collections/personal',
-      {
-        name: collectionName.value,
-        description: collectionDescription.value,
-      },
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
-    )
-    if (createResponse.status === 201) {
+    let createResponse
+    if (collection?.id) {
+      createResponse = await axios.patch(
+        `/collections/personal/${collection.id}`,
+        collection
+      )
+    } else {
+      createResponse = await axios.post(
+        '/collections/personal',
+        collection
+      )
+    }
+    if (createResponse.status === 201 || createResponse.status === 200) {
       notifySuccess(t('notifications.collection.created'))
-      resetCollectionsList()
     }
   } catch (error) {
     notifyError(t('notifications.collection.created_error'))
+    console.error(error)
+  } finally {
+    resetCollectionsList()
   }
 }
 
 function collectionNameChanged(event) {
-  collectionName.value = event.target.value
+  if (saveCollectionData.value === null)
+    saveCollectionData.value = {}
+  saveCollectionData.value.name = event.target.value
+  console.log(saveCollectionData.value)
 }
 
 function collectionDescChanged(event) {
-  collectionDescription.value = event.target.value
+  if (saveCollectionData.value === null)
+    saveCollectionData.value = {}
+  saveCollectionData.value.description = event.target.value
+  console.log(saveCollectionData.value)
 }
 
 function onPageChange(page) {
@@ -100,12 +110,11 @@ async function calculatePages() {
   try {
     if (route.meta.requiresAuth) {
       collections = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/collections/personal?page=${pageNumber}&limit=${itemLimit * 3}`,
-        { headers: { Authorization: `Bearer ${authStore.token}` } },
+        `/collections/personal?page=${pageNumber}&limit=${itemLimit * 3}`
       )
     } else {
       collections = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/collections?page=${pageNumber}&limit=${itemLimit * 3}`,
+        `/collections?page=${pageNumber}&limit=${itemLimit * 3}`
       )
     }
     items = collections.data.length / itemLimit
@@ -118,8 +127,7 @@ async function calculatePages() {
 async function removeCollection(collection) {
   try {
     const deleteResponse = await axios.delete(
-      `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${collection.id}`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/collections/personal/${collection.id}`
     )
     if (deleteResponse.status === 200) {
       notifySuccess(t('notifications.collection.deleted'))
@@ -153,13 +161,18 @@ watch(
           <h2>{{ item.name }}</h2>
           <p>{{ item.description }}</p>
         </div>
-        <div class="icon-container" @click="showRemoveDialog(item)" v-if="route.meta.requiresAuth">
-          <md-icon>close</md-icon>
+        <div class="collection-actions" v-if="route.meta.requiresAuth">
+          <div class="icon-container" @click="showSaveDialog(item)">
+            <md-icon>edit</md-icon>
+          </div>
+          <div class="icon-container" @click="showRemoveDialog(item)">
+            <md-icon>close</md-icon>
+          </div>
         </div>
       </div>
     </div>
     <div class="user-collection-actions" v-if="route.meta.requiresAuth">
-      <md-filled-button @click="showAddDialog">{{ $t('buttons.add') }}</md-filled-button>
+      <md-filled-button @click="showSaveDialog({})">{{ $t('buttons.add') }}</md-filled-button>
     </div>
     <div class="pagination-wrapper">
       <pagination
@@ -173,9 +186,17 @@ watch(
   <md-dialog ref="createCollectionDialogRef">
     <div slot="headline">{{ $t('dialogs.collections.create.header') }}</div>
     <form slot="content" id="create-dialog" method="dialog">
-      <md-outlined-text-field :label="$t('dialogs.collections.create.name')" @input="collectionNameChanged">
+      <md-outlined-text-field
+        :label="$t('dialogs.collections.create.name')"
+        :value="saveCollectionData?.name"
+        @input="collectionNameChanged"
+      >
       </md-outlined-text-field>
-      <md-outlined-text-field :label="$t('dialogs.collections.create.description')" @input="collectionDescChanged">
+      <md-outlined-text-field
+        :label="$t('dialogs.collections.create.description')"
+        :value="saveCollectionData?.description"
+        @input="collectionDescChanged"
+      >
       </md-outlined-text-field>
     </form>
     <div slot="actions">
@@ -183,7 +204,7 @@ watch(
       <md-filled-button
         form="create-dialog"
         :disabled="!collectionSavable"
-        @click="createCollection"
+        @click="confirmSaving(createCollection)"
       >
         {{ $t('buttons.ok') }}
       </md-filled-button>
@@ -283,6 +304,10 @@ watch(
   gap: 12px;
 }
 
+.collection-actions {
+  display: flex;
+}
+
 @media screen and (max-device-width: 480px) {
   .collection-description {
     overflow: hidden;
@@ -296,6 +321,11 @@ watch(
 
   h2 {
     font-size: 20px;
+  }
+
+  .collection-actions {
+    flex-direction: column;
+    gap: 12px;
   }
 }
 </style>

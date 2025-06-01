@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import Review from '@/components/Review.vue'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 import { useSwiperData } from '@/composables/useSwiperData.js'
 import { useAuthStore } from '@/stores/authStore.js'
 import { notifyError, notifySuccess, notifyInfo } from '@/utils/notifications.js'
@@ -34,6 +34,8 @@ watch(
         reviewItems.value[0].actions = true
         reviewItems.value[0].deleteAction = removeReview
       }
+    } else {
+      reviewAdded.value = false
     }
   },
 )
@@ -69,8 +71,7 @@ function showAddDialog() {
 async function removeReview(reviewId) {
   try {
     const createReviewResponse = await axios.delete(
-      `https://168882.msk.web.highserver.ru/api/v1/reviews/${reviewId}`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/reviews/${reviewId}`
     )
     if (createReviewResponse.status === 200) {
       await loadContentReviews()
@@ -84,9 +85,7 @@ async function removeReview(reviewId) {
 async function addContentToCollection(collection) {
   try {
     const addToCollectionResponse = await axios.post(
-      `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${collection.id}/contents?content=${route.params.id}`,
-      null,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/collections/personal/${collection.id}/contents?content=${route.params.id}`
     )
     if (addToCollectionResponse.status === 201) {
       notifySuccess(t('notifications.content.updated'))
@@ -101,8 +100,7 @@ async function addContentToCollection(collection) {
 async function loadUserCollections() {
   try {
     const collectionsResponse = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/collections/personal?limit=-1`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/collections/personal?limit=-1`
     )
     if (collectionsResponse.status === 200 && collectionsResponse.data.length > 0) {
       userCollections.value.push(...collectionsResponse.data)
@@ -115,7 +113,7 @@ async function loadUserCollections() {
 async function loadContentInfo() {
   try {
     const request = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/contents/${route.params.id}`,
+      `/contents/${route.params.id}`
     )
     contentInfo.value = request.data
     contentInfo.value.genres = contentInfo.value.genres.map((entry) => entry.name).join(', ')
@@ -128,8 +126,7 @@ async function loadContentInfo() {
 async function loadContentReviews() {
   try {
     const request = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/contents/${route.params.id}/reviews?limit=5`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/contents/${route.params.id}/reviews?limit=5`
     )
     if (request.status === 200) {
       reviewItems.value = []
@@ -143,8 +140,7 @@ async function loadContentReviews() {
 async function loadRating() {
   try {
     const request = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/stars?content_id=${route.params.id}`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/stars?content_id=${route.params.id}`
     )
     if (request.status === 200) {
       ratingValue.value = request.data.rating
@@ -165,21 +161,18 @@ async function rateContent() {
     let request
     if (ratingId.value > 0) {
       request = await axios.patch(
-        `https://168882.msk.web.highserver.ru/api/v1/stars/${ratingId.value}?rating=${rating}`,
-        null,
-        { headers: { Authorization: `Bearer ${authStore.token}` } },
+        `/stars/${ratingId.value}?rating=${rating}`
       )
     } else {
       request = await axios.post(
-        `https://168882.msk.web.highserver.ru/api/v1/stars`,
+        `/stars`,
         {
           content_id: Number(route.params.id),
           rating: rating,
-        },
-        { headers: { Authorization: `Bearer ${authStore.token}` } },
+        }
       )
     }
-    if (request.status === 200) {
+    if (request.status === 200 || request.status === 201) {
       await loadRating()
       notifySuccess(t('notifications.content.rated'))
     }
@@ -190,7 +183,7 @@ async function rateContent() {
 
 const { items: swiperCelebritiesItems, loadMore: loadMoreCelebrities } = useSwiperData((page) =>
   axios.get(
-    `https://168882.msk.web.highserver.ru/api/v1/contents/${route.params.id}/celebrities?page=${page}&limit=20`,
+    `/contents/${route.params.id}/celebrities?page=${page}&limit=20`,
   ),
 )
 

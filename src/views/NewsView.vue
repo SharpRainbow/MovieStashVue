@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import NewsItem from '@/components/NewsItem.vue'
 import { useListData } from '@/composables/useListData.js'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 
 const router = useRouter()
 const itemLimit = 5
@@ -16,7 +16,7 @@ const {
   currentPage,
 } = useListData((page) => {
   return axios.get(
-    `https://168882.msk.web.highserver.ru/api/v1/news?page=${page}&limit=${itemLimit}`,
+    `/news?page=${page}&limit=${itemLimit}`,
   )
 })
 
@@ -32,7 +32,7 @@ async function calculatePages() {
   const pageNumber = currentPage.value > 1 ? Math.ceil(currentPage.value / 3) + 1 : 1
   try {
     const news = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/news?page=${pageNumber}&limit=${itemLimit * 3}`,
+      `/news?page=${pageNumber}&limit=${itemLimit * 3}`,
     )
     const items = news.data.length / itemLimit
     totalPages.value += Math.ceil(items)

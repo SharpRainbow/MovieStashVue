@@ -10,6 +10,7 @@ export function useConfirmableAction(dialogRef) {
 
   const confirmAction = async (actionFn) => {
     if (!selectedItem.value) return;
+    console.log(selectedItem.value);
     await actionFn(selectedItem.value);
     selectedItem.value = null;
   };

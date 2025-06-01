@@ -3,7 +3,7 @@ import { RouterLink } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore.js'
 import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -22,10 +22,7 @@ function logOut() {
 async function loadUserData() {
   try {
     const userDataResponse = await axios.get(
-      'https://168882.msk.web.highserver.ru/api/v1/users/personal',
-      {
-        headers: { Authorization: `Bearer ${authStore.token}` },
-      },
+      '/users/personal',
     )
     if (userDataResponse.status === 200) {
       userData.value = userDataResponse.data

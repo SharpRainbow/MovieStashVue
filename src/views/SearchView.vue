@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { debounce } from 'lodash'
 import ListItem from '@/components/ListItem.vue'
 import Pagination from '@/components/Pagination.vue'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 import { useListData } from '@/composables/useListData.js'
 
 const router = useRouter()
@@ -23,11 +23,11 @@ const {
 } = useListData((page) => {
   if (currentTab.value === 0) {
     return axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/contents?page=${page}&limit=${itemLimit}&name=${searchText.value}`,
+      `/contents?page=${page}&limit=${itemLimit}&name=${searchText.value}`,
     )
   } else {
     return axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/celebrities?page=${page}&limit=${itemLimit}&name=${searchText.value}`,
+      `/celebrities?page=${page}&limit=${itemLimit}&name=${searchText.value}`,
     )
   }
 })
@@ -70,11 +70,11 @@ async function calculatePages() {
   try {
     if (currentTab.value === 0) {
       searchResult = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/contents?page=${pageNumber}&limit=${itemLimit * 3}&name=${searchText.value}`,
+        `/contents?page=${pageNumber}&limit=${itemLimit * 3}&name=${searchText.value}`,
       )
     } else {
       searchResult = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/celebrities?page=${pageNumber}&limit=${itemLimit * 3}&name=${searchText.value}`,
+        `/celebrities?page=${pageNumber}&limit=${itemLimit * 3}&name=${searchText.value}`,
       )
     }
     itemsCount = searchResult.data.length / itemLimit

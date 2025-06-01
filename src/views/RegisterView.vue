@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { notifyError, notifySuccess } from '@/utils/notifications.js'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 
 const router = useRouter()
 const passwordVisible = ref(false)
@@ -19,7 +19,7 @@ const dataProvided = computed(() => {
 
 async function tryRegister() {
   try {
-    const response = await axios.post('https://168882.msk.web.highserver.ru/api/v1/register',
+    const response = await axios.post('/register',
       {
         email: userEmail.value,
         login: userLogin.value,
@@ -46,7 +46,9 @@ function loginChanged(event) {
 }
 
 function passwordChanged(event) {
-  userPassword.value = event.target.value
+  if (event.target.id === 'password') {
+    userPassword.value = event.target.value
+  }
 }
 
 function emailChanged(event) {
@@ -67,6 +69,7 @@ function nicknameChanged(event) {
       >
       </md-outlined-text-field>
       <md-outlined-text-field
+        id="password"
         :type="passwordVisible ? `text` : `password`"
         :label="$t(`fields.password.label`)"
         @input="passwordChanged">

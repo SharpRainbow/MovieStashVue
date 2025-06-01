@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 
 const route = useRoute()
 const reviewData = ref({
@@ -26,7 +26,7 @@ const opinionColor = computed(() => {
 async function loadReview() {
   try {
     const reviewResponse = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/reviews/${route.params.id}`
+      `/reviews/${route.params.id}`
     )
     if (reviewResponse.status === 200) {
       reviewData.value = reviewResponse.data

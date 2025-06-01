@@ -1,13 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
-import { useAuthStore } from '@/stores/authStore.js'
+import axios from '@/utils/axiosInstance.js'
 import { notifySuccess, notifyError } from '@/utils/notifications.js'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const activeData = ref('')
@@ -28,10 +26,7 @@ function goBack() {
 async function loadUserData() {
   try {
     const userDataResponse = await axios.get(
-      'https://168882.msk.web.highserver.ru/api/v1/users/personal',
-      {
-        headers: { Authorization: `Bearer ${authStore.token}` },
-      },
+      '/users/personal'
     )
     if (userDataResponse.status === 200) {
       activeData.value = userDataResponse.data[`${route.params.property}`]
@@ -44,13 +39,10 @@ async function loadUserData() {
 async function updateUserData() {
   try {
     const userDataResponse = await axios.patch(
-      'https://168882.msk.web.highserver.ru/api/v1/users/personal',
+      '/users/personal',
       {
         [route.params.property]: activeData.value,
-      },
-      {
-        headers: { Authorization: `Bearer ${authStore.token}` },
-      },
+      }
     )
     if (userDataResponse.status === 200) {
       notifySuccess(t('notifications.profile.updated'))

@@ -3,15 +3,13 @@ import Pagination from '@/components/Pagination.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ListItem from '@/components/ListItem.vue'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 import { useListData } from '@/composables/useListData.js'
-import { useAuthStore } from '@/stores/authStore.js'
 import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
 import { notifyError, notifySuccess } from '@/utils/notifications.js'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const authStore = useAuthStore()
 const itemLimit = 4
 const router = useRouter()
 const route = useRoute()
@@ -33,16 +31,15 @@ const {
 } = useListData((page) => {
   if (route.meta.genre) {
     return axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/contents?genre=${route.params.id}&page=${page}&limit=${itemLimit}`,
+      `/contents?genre=${route.params.id}&page=${page}&limit=${itemLimit}`
     )
   } else if (route.meta.requiresAuth) {
     return axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}/contents?page=${page}&limit=${itemLimit}`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/collections/personal/${route.params.id}/contents?page=${page}&limit=${itemLimit}`
     )
   } else {
     return axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/collections/${route.params.id}/contents?page=${page}&limit=${itemLimit}`,
+      `/collections/${route.params.id}/contents?page=${page}&limit=${itemLimit}`
     )
   }
 })
@@ -65,8 +62,7 @@ function onPageChange(page) {
 async function removeContent(content) {
   try {
     const removeContentResponse = await axios.delete(
-      `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}/contents?content=${content.id}`,
-      { headers: { Authorization: `Bearer ${authStore.token}` } },
+      `/collections/personal/${route.params.id}/contents?content=${content.id}`
     )
     if (removeContentResponse.status === 200) {
       notifySuccess(t(`notifications.collection.updated`))
@@ -84,16 +80,15 @@ async function calculatePages() {
   try {
     if (route.meta.genre) {
       content = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/contents?genre=${route.params.id}&page=${pageNumber}&limit=${itemLimit * 3}`,
+        `/contents?genre=${route.params.id}&page=${pageNumber}&limit=${itemLimit * 3}`
       )
     } else if (route.meta.requiresAuth) {
       content = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}/contents?page=${pageNumber}&limit=${itemLimit * 3}`,
-        { headers: { Authorization: `Bearer ${authStore.token}` } },
+        `/collections/personal/${route.params.id}/contents?page=${pageNumber}&limit=${itemLimit * 3}`
       )
     } else {
       content = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/collections/${route.params.id}/contents?page=${pageNumber}&limit=${itemLimit * 3}`,
+        `/collections/${route.params.id}/contents?page=${pageNumber}&limit=${itemLimit * 3}`
       )
     }
     items = content.data.length / itemLimit
@@ -107,19 +102,18 @@ async function getCollectionInfo() {
   try {
     if (route.meta.genre) {
       let request = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/genres/${route.params.id}`,
+        `/genres/${route.params.id}`
       )
       collectionData.value.name = request.data.name
     } else if (route.meta.requiresAuth) {
       let request = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/collections/personal/${route.params.id}`,
-        { headers: { Authorization: `Bearer ${authStore.token}` } },
+        `/collections/personal/${route.params.id}`
       )
       collectionData.value.name = request.data.name
       collectionData.value.description = request.data.description
     } else {
       let request = await axios.get(
-        `https://168882.msk.web.highserver.ru/api/v1/collections/${route.params.id}`,
+        `/collections/${route.params.id}`
       )
       collectionData.value.name = request.data.name
       collectionData.value.description = request.data.description

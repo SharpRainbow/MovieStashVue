@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 
 const route = useRoute()
 const newData = ref({
@@ -15,7 +15,7 @@ const newData = ref({
 async function loadNews() {
   try {
     const newResponse = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/news/${route.params.id}`
+      `/news/${route.params.id}`
     )
     if (newResponse.status === 200) {
       newData.value = newResponse.data

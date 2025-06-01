@@ -3,7 +3,7 @@ import Pagination from '@/components/Pagination.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useListData } from '@/composables/useListData.js'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 import Review from '@/components/Review.vue'
 
 const router = useRouter()
@@ -17,7 +17,7 @@ const {
   currentPage,
 } = useListData((page) => {
   return axios.get(
-    `https://168882.msk.web.highserver.ru/api/v1/contents/${route.query.content_id}/reviews?page=${page}&limit=${itemLimit}`,
+    `/contents/${route.query.content_id}/reviews?page=${page}&limit=${itemLimit}`,
   )
 })
 
@@ -33,7 +33,7 @@ async function calculatePages() {
   const pageNumber = currentPage.value > 1 ? Math.ceil(currentPage.value / 3) + 1 : 1
   try {
     const news = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/contents/${route.query.content_id}/reviews?page=${pageNumber}&limit=${itemLimit * 3}`,
+      `/contents/${route.query.content_id}/reviews?page=${pageNumber}&limit=${itemLimit * 3}`,
     )
     const items = news.data.length / itemLimit
     totalPages.value += Math.ceil(items)

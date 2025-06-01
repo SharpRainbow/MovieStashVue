@@ -8,7 +8,7 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import NewsItem from '@/components/NewsItem.vue'
 import CollectionItem from '@/components/CollectionItem.vue'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 
 const newsItems = ref([])
 
@@ -19,7 +19,7 @@ const {
   loadMore: loadMoreContents
 } = useSwiperData(
   (page) =>
-    axios.get(`https://168882.msk.web.highserver.ru/api/v1/contents?page=${page}&limit=10`)
+    axios.get(`/contents?page=${page}&limit=10`)
 );
 
 const {
@@ -27,12 +27,12 @@ const {
   loadMore: loadMoreCollections
 } = useSwiperData(
   (page) =>
-    axios.get(`https://168882.msk.web.highserver.ru/api/v1/genres/present?page=${page}&limit=10`)
+    axios.get(`/genres/present?page=${page}&limit=10`)
 );
 
 async function fetchRecentNews() {
   try {
-    const response = await axios.get("https://168882.msk.web.highserver.ru/api/v1/news?page=1&limit=5")
+    const response = await axios.get("/news?page=1&limit=5")
     response.data.forEach(item => {
       newsItems.value.push(item)
     })

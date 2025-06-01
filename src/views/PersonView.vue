@@ -5,7 +5,7 @@ import { Navigation, Mousewheel } from 'swiper/modules'
 import { useRouter, useRoute } from 'vue-router'
 import 'swiper/css'
 import 'swiper/css/navigation'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance.js'
 import { useSwiperData } from '@/composables/useSwiperData.js'
 
 const router = useRouter()
@@ -26,7 +26,7 @@ const personData = ref({
 async function loadPersonInfo() {
   try {
     const request = await axios.get(
-      `https://168882.msk.web.highserver.ru/api/v1/celebrities/${route.params.id}`,
+      `/celebrities/${route.params.id}`,
     )
     personData.value = request.data
   } catch (e) {
@@ -36,22 +36,13 @@ async function loadPersonInfo() {
 
 const { items: swiperContentItems, loadMore: loadMoreContents } = useSwiperData((page) =>
   axios.get(
-    `https://168882.msk.web.highserver.ru/api/v1/celebrities/${route.params.id}/contents?page=${page}&limit=20`,
+    `/celebrities/${route.params.id}/contents?page=${page}&limit=20`,
   ),
 )
 
 onMounted(() => {
   loadPersonInfo()
   loadMoreContents()
-  // const personArr = Array.from({ length: 55 }, (_, index) => ({
-  //   id: index + 1,
-  //   src: `/src/assets/images/placeholder.jpg`,
-  //   name: `Film${index + 1}`,
-  //   date: `Date${index + 1}`,
-  // }))
-  // personArr.forEach((item) => {
-  //   personItems.value.push(item)
-  // })
 })
 </script>
 
