@@ -87,6 +87,7 @@ onMounted(() => {
       >
         <CollectionItem
           :name="item.name"
+          :icon="item.icon"
         >
         </CollectionItem>
       </SwiperSlide>
@@ -96,10 +97,11 @@ onMounted(() => {
       <news-item
         v-for="item in newsItems"
         :key="item.id"
-        @click="router.push(`/news/${item.id}`)"
+        :news-id="item.id"
         :title="item.title"
         :text="item.description"
         :image="item.image"
+        :click-action="() => router.push(`/news/${item.id}`)"
       >
       </news-item>
     </div>

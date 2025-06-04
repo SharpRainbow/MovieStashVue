@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore.js'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+import { notifyError } from '@/utils/notifications.js'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -24,10 +25,7 @@ async function tryLogin() {
         text = 'Введен неверный пароль!'
         break
     }
-    toast.error(text, {
-      position: toast.POSITION.TOP_RIGHT,
-      theme: 'dark',
-    });
+    notifyError(text)
   }
   else
     await router.replace('/account')
@@ -38,7 +36,9 @@ function loginChanged(event) {
 }
 
 function passwordChanged(event) {
-  userPassword.value = event.target.value
+  if (event.target.id === 'password') {
+    userPassword.value = event.target.value
+  }
 }
 </script>
 
@@ -50,6 +50,7 @@ function passwordChanged(event) {
         @input="loginChanged">
       </md-outlined-text-field>
       <md-outlined-text-field
+        id="password"
         :type="passwordVisible ? `text` : `password`"
         :label="$t(`fields.password.label`)"
         @input="passwordChanged"

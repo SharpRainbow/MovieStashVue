@@ -5,7 +5,13 @@ import { useRouter } from 'vue-router'
 import NewsItem from '@/components/NewsItem.vue'
 import { useListData } from '@/composables/useListData.js'
 import axios from '@/utils/axiosInstance.js'
+import { useAuthStore } from '@/stores/authStore.js'
+import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
+import { notifyError, notifySuccess } from '@/utils/notifications.js'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
+const authStore = useAuthStore()
 const router = useRouter()
 const itemLimit = 5
 
@@ -19,6 +25,32 @@ const {
     `/news?page=${page}&limit=${itemLimit}`,
   )
 })
+
+function resetNewsList() {
+  totalPages.value = 0
+  currentPage.value = 1
+  newsItems.value = []
+  calculatePages()
+  loadMoreNewsItems()
+}
+
+async function removeNews(newsId) {
+  try {
+    const deleteResponse = await axios.delete(
+      `/news/${newsId}`
+    )
+    if (deleteResponse.status === 200) {
+      notifySuccess(t('notifications.news.deleted'))
+      resetNewsList()
+    }
+  } catch (error) {
+    notifyError(t('notifications.news.deleted_error'))
+  }
+}
+
+function changeNews(newsId) {
+  router.push({ path: '/news/add', query: { news_id: newsId } })
+}
 
 function onPageChange(page) {
   currentPage.value = page
@@ -53,12 +85,18 @@ onMounted(() => {
       <news-item
         v-for="item in newsItems"
         :key="item.id"
-        @click="router.push(`/news/${item.id}`)"
+        :news-id="item.id"
         :title="item.title"
         :text="item.description"
         :image="item.image"
+        :delete-action="authStore.hasRole('moderator') ? removeNews : null"
+        :change-action="authStore.hasRole('moderator') ? changeNews : null"
+        :click-action="() => router.push(`/news/${item.id}`)"
       >
       </news-item>
+    </div>
+    <div class="news-actions" v-if="authStore.hasRole('moderator')">
+      <md-filled-button @click="router.push('/news/add')">{{ $t('buttons.add') }}</md-filled-button>
     </div>
     <div class="pagination-wrapper">
       <pagination
@@ -101,6 +139,14 @@ onMounted(() => {
   border: 1px solid var(--secondary-color);
   width: 100%;
   height: 100%;
+}
+
+.news-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  margin-top: 12px;
+  margin-right: 12px;
 }
 
 @media screen and (max-device-width: 480px) {

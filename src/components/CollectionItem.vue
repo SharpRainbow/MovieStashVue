@@ -9,6 +9,10 @@ const props = defineProps({
     type: Number,
     default: 150
   },
+  icon: {
+    type: String,
+    default: 'movie'
+  }
 })
 </script>
 
@@ -16,7 +20,7 @@ const props = defineProps({
 <div
   class="collection-container"
 >
-  <md-icon slot="icon">movie</md-icon>
+  <md-icon slot="icon">{{ props.icon || 'movie' }}</md-icon>
   <label>{{ props.name }}</label>
 </div>
 </template>

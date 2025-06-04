@@ -35,11 +35,13 @@ const router = createRouter({
       path: '/account',
       name: 'account',
       component: () => import('../views/AccountView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/account/:property',
       props: true,
       component: () => import('../views/EditInfoView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/collections',
@@ -104,7 +106,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
-    return { path: '/login', query: { redirect: to.fullPath } };
+    return { path: '/login' };
   }
 
   if (to.meta.role && !auth.hasRole(to.meta.role)) {

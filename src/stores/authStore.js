@@ -12,10 +12,10 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(login, password) {
     try {
       const loginResponse = await axios.post('https://168882.msk.web.highserver.ru/api/v1/login', { login, password });
-      this.token = loginResponse.data.token;
-      localStorage.setItem('token', this.token);
-      const payload = JSON.parse(atob(this.token.split('.')[1]));
-      this.user = { userId: payload.sub, role: payload.aud[0] };
+      token.value = loginResponse.data.token;
+      localStorage.setItem('token', token.value);
+      const payload = JSON.parse(atob(token.value.split('.')[1]));
+      user.value = { userId: payload.sub, role: payload.aud[0] };
       return null;
     } catch (error) {
       return error;
@@ -23,32 +23,32 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
-    this.token = null;
-    this.user = null;
+    token.value = null;
+    user.value = null;
     localStorage.removeItem('token');
   }
 
   function hasRole(role) {
-    return this.user.value?.role === role
+    return user.value?.role === role
   }
 
   function checkToken() {
-    if (!this.token)
+    if (!token.value)
       return;
 
     try {
-      const payload = JSON.parse(atob(this.token.split('.')[1]));
+      const payload = JSON.parse(atob(token.value.split('.')[1]));
       const currentTime = Math.floor(Date.now() / 1000);
 
       if (payload.exp && payload.exp < currentTime) {
         console.log('Token expired');
-        this.logout();
+        logout();
       } else {
-        this.user = { userId: payload.sub, role: payload.aud[0] };
+        user.value = { userId: payload.sub, role: payload.aud[0] };
       }
     } catch (e) {
       console.error('Invalid token', e);
-      this.logout();
+      logout();
     }
   }
 

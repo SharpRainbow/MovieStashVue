@@ -8,13 +8,16 @@ import { useListData } from '@/composables/useListData.js'
 import { useConfirmableAction } from '@/composables/useConfirmableAction.js'
 import { notifyError, notifySuccess } from '@/utils/notifications.js'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/stores/authStore.js'
 
 const { t } = useI18n()
+const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const collectionContentRoute = route.meta.requiresAuth ? '/collections/personal' : '/collections'
 const createCollectionDialogRef = ref(null)
 const deleteCollectionDialogRef = ref(null)
+const visibilityDialogRef = ref(null)
 const itemLimit = 5
 const {
   items: collectionItems,
@@ -44,8 +47,17 @@ const {
   confirmAction: confirmSaving,
 } = useConfirmableAction(createCollectionDialogRef)
 
+const {
+  selectedItem: visibilityCollectionData,
+  requestAction: showVisibilityDialog,
+  confirmAction: confirmVisibilityChange,
+} = useConfirmableAction(visibilityDialogRef)
+
 const collectionSavable = computed(() => {
   return saveCollectionData?.value
+})
+const visibilityIcon = computed(() => {
+  return route.meta.requiresAuth ? 'visibility' : 'visibility_off'
 })
 
 function resetCollectionsList() {
@@ -59,6 +71,7 @@ function resetCollectionsList() {
 async function createCollection(collection) {
   try {
     let createResponse
+    console.log(collection)
     if (collection?.id) {
       createResponse = await axios.patch(
         `/collections/personal/${collection.id}`,
@@ -91,7 +104,10 @@ function collectionNameChanged(event) {
 function collectionDescChanged(event) {
   if (saveCollectionData.value === null)
     saveCollectionData.value = {}
-  saveCollectionData.value.description = event.target.value
+  if (event.target.value === '')
+    saveCollectionData.value.description = null
+  else
+    saveCollectionData.value.description = event.target.value
   console.log(saveCollectionData.value)
 }
 
@@ -138,6 +154,27 @@ async function removeCollection(collection) {
   }
 }
 
+async function changeCollectionVisibility(collection) {
+  try {
+    let visibilityResponse
+    if (collection.user_id) {
+      visibilityResponse = await axios.patch(
+        `/collections/personal/${collection.id}/publish`
+      )
+    } else {
+      visibilityResponse = await axios.patch(
+        `/collections/personal/${collection.id}/own`
+      )
+    }
+    if (visibilityResponse.status === 200) {
+      notifySuccess(t('notifications.collection.publish'))
+      resetCollectionsList()
+    }
+  } catch (error) {
+    notifyError(t('notifications.collection.publish_error'))
+  }
+}
+
 watch(
   () => route.meta,
   () => {
@@ -154,6 +191,7 @@ watch(
         <CollectionItem
           name=""
           dimension="115"
+          :icon="item.icon"
           @click="router.push(`${collectionContentRoute}/${item.id}`)"
         >
         </CollectionItem>
@@ -161,11 +199,14 @@ watch(
           <h2>{{ item.name }}</h2>
           <p>{{ item.description }}</p>
         </div>
-        <div class="collection-actions" v-if="route.meta.requiresAuth">
-          <div class="icon-container" @click="showSaveDialog(item)">
+        <div class="collection-actions">
+          <div class="icon-container" v-if="authStore.hasRole('moderator')" @click="showVisibilityDialog(item)">
+            <md-icon>{{ visibilityIcon }}</md-icon>
+          </div>
+          <div class="icon-container" v-if="route.meta.requiresAuth" @click="showSaveDialog(item)">
             <md-icon>edit</md-icon>
           </div>
-          <div class="icon-container" @click="showRemoveDialog(item)">
+          <div class="icon-container" v-if="route.meta.requiresAuth" @click="showRemoveDialog(item)">
             <md-icon>close</md-icon>
           </div>
         </div>
@@ -218,6 +259,18 @@ watch(
     <div slot="actions">
       <md-text-button form="remove-dialog">{{ $t('buttons.cancel') }}</md-text-button>
       <md-filled-button form="remove-dialog" @click="confirmRemoval(removeCollection)">
+        {{ $t('buttons.ok') }}
+      </md-filled-button>
+    </div>
+  </md-dialog>
+  <md-dialog ref="visibilityDialogRef">
+    <div slot="headline">{{ $t('dialogs.collections.visibility.header') }}</div>
+    <form slot="content" id="vis-dialog" method="dialog">
+      {{ $t('dialogs.collections.visibility.message', { name: visibilityCollectionData?.name }) }}
+    </form>
+    <div slot="actions">
+      <md-text-button form="vis-dialog">{{ $t('buttons.cancel') }}</md-text-button>
+      <md-filled-button form="vis-dialog" @click="confirmVisibilityChange(changeCollectionVisibility)">
         {{ $t('buttons.ok') }}
       </md-filled-button>
     </div>
@@ -306,6 +359,8 @@ watch(
 
 .collection-actions {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 @media screen and (max-device-width: 480px) {
@@ -324,8 +379,7 @@ watch(
   }
 
   .collection-actions {
-    flex-direction: column;
-    gap: 12px;
+    gap: 6px;
   }
 }
 </style>

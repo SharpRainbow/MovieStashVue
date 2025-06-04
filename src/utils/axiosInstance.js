@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/authStore.js';
+import { notifyError } from '@/utils/notifications.js'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -17,8 +18,12 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     const authStore = useAuthStore();
-    if (error.response && error.response.status === 401) {
-      authStore.logout();
+    if (error.response) {
+      if (error.response.status === 401) {
+        authStore.logout();
+      } else if (error.response.data.error === 'user is banned') {
+        notifyError('Ваша учетная запись заблокирована!')
+      }
     }
     return Promise.reject(error);
   }

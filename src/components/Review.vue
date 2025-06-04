@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from 'vue'
 const props = defineProps({
   reviewId: {
     type: Number,
-    required: true
+    required: true,
   },
   author: {
     type: String,
@@ -27,45 +27,34 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  actionsVisibility: {
-    type: Boolean,
-    default: false
-  },
   deleteAction: {
     type: Function,
     required: false,
-    default: () => {}
+    default: null,
   },
   changeAction: {
     type: Function,
     required: false,
-    default: () => {}
+    default: null,
   },
   clickAction: {
     type: Function,
     required: false,
     default: () => {
       console.log('click action')
-    }
-  }
+    },
+  },
 })
 const removeReviewDialogRef = ref(null)
 
 const opinionColor = computed(() => {
-  if (props.type === 'Хорошо')
-    return '#76FF03'
-  else if (props.type === 'Плохо')
-    return '#FF1744'
-  else
-    return '#BDBDBD'
+  if (props.type === 'Хорошо') return '#76FF03'
+  else if (props.type === 'Плохо') return '#FF1744'
+  else return '#BDBDBD'
 })
 
-const {
-  selectedItem: _,
-  requestAction: showRemoveDialog,
-  confirmAction: confirmRemoval,
-} = useConfirmableAction(removeReviewDialogRef)
-
+const { requestAction: showRemoveDialog, confirmAction: confirmRemoval } =
+  useConfirmableAction(removeReviewDialogRef)
 </script>
 
 <template>
@@ -74,21 +63,21 @@ const {
       <div class="review-info">
         <p>
           {{ props.author }} {{ $t(`labels.review.added_review`) }}
-          <span :style="{color: opinionColor}">
-          {{ props.type }}
-        </span>
+          <span :style="{ color: opinionColor }">
+            {{ props.type }}
+          </span>
         </p>
         <p>{{ props.date }}</p>
       </div>
       <h3>{{ props.title }}</h3>
       <p>{{ props.description }}</p>
     </div>
-    <div class="review-actions" v-if="actionsVisibility">
-      <md-filled-button @click="changeAction">
-        Изменить
+    <div class="review-actions">
+      <md-filled-button v-if="changeAction !== null" @click="changeAction">
+        {{ $t(`buttons.edit`) }}
       </md-filled-button>
-      <md-filled-button @click="showRemoveDialog(reviewId)">
-        Удалить
+      <md-filled-button v-if="deleteAction !== null" @click="showRemoveDialog(reviewId)">
+        {{ $t(`buttons.delete`) }}
       </md-filled-button>
     </div>
   </div>
@@ -98,9 +87,9 @@ const {
       {{ $t(`dialogs.review.delete_message`) }}
     </form>
     <div slot="actions">
-      <md-text-button form="remove-dialog">{{
-          $t(`dialogs.review.delete_cancel`)
-        }}</md-text-button>
+      <md-text-button form="remove-dialog"
+        >{{ $t(`dialogs.review.delete_cancel`) }}
+      </md-text-button>
       <md-filled-button form="remove-dialog" @click="confirmRemoval(props.deleteAction)">
         {{ $t(`dialogs.review.delete_ok`) }}
       </md-filled-button>
@@ -116,7 +105,7 @@ const {
   border-radius: 16px; /* Rounded corners */
   background-color: #272d36; /* Background color of the rectangle */
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
-  padding: 0 16px;
+  padding: 20px;
 }
 
 .review-body {
@@ -142,11 +131,11 @@ const {
 .review-actions {
   display: flex;
   align-self: end;
-  margin-bottom: 16px;
   gap: 12px;
 }
 
 .review-info p {
+  margin-top: 0;
   color: gray;
 }
 
@@ -155,10 +144,8 @@ h3 {
 }
 
 @media screen and (max-device-width: 480px) {
-
   .review-container p {
     font-size: 12px;
   }
-
 }
 </style>

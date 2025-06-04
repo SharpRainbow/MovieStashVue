@@ -3,9 +3,12 @@ import Pagination from '@/components/Pagination.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useListData } from '@/composables/useListData.js'
+import { useAuthStore } from '@/stores/authStore.js'
 import axios from '@/utils/axiosInstance.js'
 import Review from '@/components/Review.vue'
+import { notifyError } from '@/utils/notifications.js'
 
+const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const itemLimit = 4
@@ -42,9 +45,38 @@ async function calculatePages() {
   }
 }
 
-onMounted(() => {
+function resetReviewList() {
+  totalPages.value = 0
+  currentPage.value = 1
+  reviewItems.value = []
   calculatePages()
   loadMoreReviewItems()
+}
+
+async function removeReview(reviewId) {
+  try {
+    const createReviewResponse = await axios.delete(
+      `/reviews/${reviewId}`
+    )
+    if (createReviewResponse.status === 200) {
+      resetReviewList()
+    }
+  } catch (error) {
+    console.error(error)
+    notifyError(t('notifications.content.review_delete_error'))
+  }
+}
+
+function changeReview() {
+  router.push({ path: '/reviews/add', query: { content_id: route.query.content_id } })
+}
+
+function actionAccessible(userId) {
+  return authStore.isLoggedIn && (Number(authStore.user?.userId) === Number(userId))
+}
+
+onMounted(() => {
+  resetReviewList()
 })
 </script>
 
@@ -60,6 +92,8 @@ onMounted(() => {
         :type="item.opinion.name"
         :date="item.date"
         :author="item.userName"
+        :delete-action="(actionAccessible(item.userId) || authStore.hasRole('moderator')) ? removeReview : null"
+        :change-action="actionAccessible(item.userId) ? changeReview : null"
         :click-action="() => router.push(`/reviews/${item.id}`)"
       >
       </Review>

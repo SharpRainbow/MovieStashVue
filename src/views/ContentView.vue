@@ -30,10 +30,6 @@ watch(
   () => {
     if (authStore.isLoggedIn && reviewItems.value.length > 0) {
       reviewAdded.value = Number(reviewItems.value[0].userId) === Number(authStore.user.userId)
-      if (reviewAdded.value) {
-        reviewItems.value[0].actions = true
-        reviewItems.value[0].deleteAction = removeReview
-      }
     } else {
       reviewAdded.value = false
     }
@@ -80,6 +76,14 @@ async function removeReview(reviewId) {
     console.error(error)
     notifyError(t('notifications.content.review_delete_error'))
   }
+}
+
+function changeReview() {
+  router.push({ path: '/reviews/add', query: { content_id: route.params.id } })
+}
+
+function actionAccessible(userId) {
+  return authStore.isLoggedIn && (Number(authStore.user?.userId) === Number(userId))
 }
 
 async function addContentToCollection(collection) {
@@ -285,7 +289,7 @@ onMounted(() => {
         @click="router.push(`/person/${item.id}`)"
       >
         <div class="image-container">
-          <img :src="item.image" alt="person image" />
+          <img :src="item.image || '/src/assets/images/placeholder.jpg'" alt="person image" />
         </div>
         <div class="person-name">{{ item.name }}</div>
         <div class="person-role">{{ item.role }}</div>
@@ -335,9 +339,8 @@ onMounted(() => {
         :date="item.date"
         :title="item.title"
         :description="item.description"
-        :actionsVisibility="item.actions"
-        :delete-action="item.deleteAction"
-        :change-action="() => router.push({ path: '/reviews/add', query: { content_id: route.params.id } })"
+        :delete-action="(actionAccessible(item.userId) || authStore.hasRole('moderator')) ? removeReview : null"
+        :change-action="actionAccessible(item.userId) ? changeReview : null"
         :click-action="() => router.push(`/reviews/${item.id}`)"
       >
       </Review>
