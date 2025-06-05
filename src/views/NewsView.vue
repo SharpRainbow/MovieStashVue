@@ -74,8 +74,7 @@ async function calculatePages() {
 }
 
 onMounted(() => {
-  calculatePages()
-  loadMoreNewsItems()
+  resetNewsList()
 })
 </script>
 

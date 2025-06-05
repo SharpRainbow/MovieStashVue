@@ -9,40 +9,44 @@ const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const reviewId = ref(0)
-const reviewData = ref({
-  content_id: Number(route.query.content_id) || 0,
-  title: '',
-  description: '',
-  opinion_id: 0
-})
+const contentId = ref(Number(route.query.content_id) || 0)
+const reviewTitle = ref('')
+const reviewDescription = ref('')
+const reviewOpinion = ref(0)
 const autoResize = (event) => {
   event.target.style.height = 'auto'
   event.target.style.height = event.target.scrollHeight + 'px'
 }
 const opinionOptions = ref([])
 const reviewSavable = computed(() => {
-  return reviewData.value.title.toString().trim() !== '' &&
-    reviewData.value.description.toString().trim() !== '' &&
-    reviewData.value.opinion_id !== 0 &&
-    reviewData.value.content_id > 0
+  return reviewTitle.value.toString().trim() !== '' &&
+    reviewDescription.value.toString().trim() !== '' &&
+    reviewOpinion.value > 0 &&
+    contentId.value > 0
 })
 
 async function postReview() {
   try {
+    const reviewData = {
+        contentId: contentId.value,
+        title: reviewTitle.value,
+        description: reviewDescription.value,
+        opinionId: reviewOpinion.value,
+    }
     let createReviewResponse
     if (reviewId.value > 0) {
       createReviewResponse = await axios.patch(
         `/reviews/${reviewId.value}`,
-        reviewData.value
+        reviewData
       )
     } else {
       createReviewResponse = await axios.post(
         `/reviews`,
-        reviewData.value
+        reviewData
       )
     }
     if (createReviewResponse.status === 201 || createReviewResponse.status === 200 ) {
-      await router.replace(`/content/${reviewData.value.content_id}`)
+      await router.replace(`/content/${contentId.value}`)
       notifySuccess('Рецензия сохранена!')
     }
   } catch (error) {
@@ -67,17 +71,25 @@ async function loadOpinionOptions() {
 async function checkUserReviews() {
   try {
     const request = await axios.get(
-      `/contents/${reviewData.value.content_id}/reviews?limit=1`
+      `/contents/${contentId.value}/reviews?limit=1`
     )
     const review = request.data[0]
     if (request.status === 200 && Number(authStore.user?.userId) === Number(review?.userId)) {
-      reviewData.value.title = review.title
-      reviewData.value.description = review.description
-      reviewData.value.opinion_id = review.opinion.id
+      reviewTitle.value = review.title
+      reviewDescription.value = review.description
+      reviewOpinion.value = review.opinion.id
       reviewId.value = review.id
     }
   } catch (err) {
     console.error(err)
+  }
+}
+
+function goBack() {
+  if (window.history.state.back) {
+    router.back()
+  } else {
+    router.replace('/account')
   }
 }
 
@@ -92,10 +104,10 @@ onMounted(() => {
     <input
       type="text"
       class="review-title"
-      v-model="reviewData.title"
+      v-model="reviewTitle"
       :placeholder="$t(`fields.review.placeholder.title`)"
     />
-    <select ref="opinionSelector" v-model="reviewData.opinion_id">
+    <select ref="opinionSelector" v-model="reviewOpinion">
       <option selected disabled value="0">
         {{ $t(`fields.review.placeholder.type`) }}
       </option>
@@ -105,11 +117,11 @@ onMounted(() => {
     </select>
     <textarea
       :placeholder="$t(`fields.review.placeholder.desc`)"
-      v-model="reviewData.description"
+      v-model="reviewDescription"
       @input="autoResize"
     ></textarea>
     <div class="review-actions">
-      <md-text-button>{{ $t(`buttons.cancel`) }}</md-text-button>
+      <md-text-button @click="goBack">{{ $t(`buttons.cancel`) }}</md-text-button>
       <md-filled-button :disabled="!reviewSavable" @click="postReview">
         {{ $t(`buttons.publish`) }}
       </md-filled-button>

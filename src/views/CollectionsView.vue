@@ -54,7 +54,7 @@ const {
 } = useConfirmableAction(visibilityDialogRef)
 
 const collectionSavable = computed(() => {
-  return saveCollectionData?.value
+  return !!saveCollectionData.value?.name
 })
 const visibilityIcon = computed(() => {
   return route.meta.requiresAuth ? 'visibility' : 'visibility_off'
@@ -157,7 +157,7 @@ async function removeCollection(collection) {
 async function changeCollectionVisibility(collection) {
   try {
     let visibilityResponse
-    if (collection.user_id) {
+    if (collection.userId) {
       visibilityResponse = await axios.patch(
         `/collections/personal/${collection.id}/publish`
       )

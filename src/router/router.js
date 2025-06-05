@@ -99,6 +99,11 @@ const router = createRouter({
       path: '/reviews/add',
       component: () => import('../views/ReviewAddView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/users/manage',
+      component: () => import('../views/BlockedUsersView.vue'),
+      meta: { requiresAuth: true, role: 'moderator' },
     }
   ],
 })

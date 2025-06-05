@@ -5,11 +5,13 @@
     --background-color: #191C20;
     --text-color: #EEF0F2;
     --icon-color: #AED1FF;
+    --material-red: #FF1744;
+    --material-green: #76FF03;
+    --material-grey: #BDBDBD;
 }
 
 * {
     --md-icon-font: 'Material Symbols Rounded';
-    --toastify-color-dark: #272D36;
     color: var(--text-color);
     color-scheme: dark;
 }

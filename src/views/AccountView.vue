@@ -61,8 +61,20 @@ onMounted(() => {
         </RouterLink>
       </div>
     </div>
+    <p
+      v-if="userData.isBanned"
+      class="ban-message"
+    >
+      {{ $t('labels.users.ban_reason', { reason: userData.banReason }) }}
+    </p>
     <md-filled-button @click="router.push(`/collections/personal`)">
       {{ $t(`buttons.user_collections`) }}
+    </md-filled-button>
+    <md-filled-button
+      v-if="authStore.hasRole('moderator')"
+      @click="router.push(`/users/manage`)"
+    >
+      {{ $t(`buttons.blocked_users`) }}
     </md-filled-button>
     <md-filled-button @click="logOut">
       {{ $t(`buttons.exit`) }}
@@ -73,7 +85,6 @@ onMounted(() => {
 <style scoped>
 md-filled-button {
   width: 100%;
-  max-width: 500px;
   margin-top: 16px;
 }
 
@@ -86,13 +97,15 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: center;
   box-sizing: border-box;
   padding: 0 16px;
+  max-width: 500px;
+  width: 100%;
 }
 
 .container {
   width: 100%;
-  max-width: 500px;
   border-radius: 16px;
   border: 1px solid var(--secondary-color);
   box-sizing: border-box;
@@ -121,6 +134,12 @@ h2 {
   /*min-width: fit-content;*/
   font-size: 12px;
   min-width: 200px;
+}
+
+.ban-message {
+  color: var(--material-red);
+  box-sizing: border-box;
+  font-size: 20px;
 }
 
 @media screen and (max-width: 480px) {

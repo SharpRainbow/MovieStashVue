@@ -82,16 +82,16 @@ const { requestAction: showRemoveDialog, confirmAction: confirmRemoval } =
     </div>
   </div>
   <md-dialog ref="removeReviewDialogRef">
-    <div slot="headline">{{ $t(`dialogs.review.delete_header`) }}</div>
+    <div slot="headline">{{ $t(`dialogs.review.delete.header`) }}</div>
     <form slot="content" id="remove-dialog" method="dialog">
-      {{ $t(`dialogs.review.delete_message`) }}
+      {{ $t(`dialogs.review.delete.message`) }}
     </form>
     <div slot="actions">
       <md-text-button form="remove-dialog"
-        >{{ $t(`dialogs.review.delete_cancel`) }}
+        >{{ $t(`buttons.cancel`) }}
       </md-text-button>
       <md-filled-button form="remove-dialog" @click="confirmRemoval(props.deleteAction)">
-        {{ $t(`dialogs.review.delete_ok`) }}
+        {{ $t(`buttons.ok`) }}
       </md-filled-button>
     </div>
   </md-dialog>

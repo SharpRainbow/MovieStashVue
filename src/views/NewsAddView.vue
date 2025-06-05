@@ -75,6 +75,14 @@ async function loadNewsData(id) {
   }
 }
 
+function goBack() {
+  if (window.history.state.back) {
+    router.back()
+  } else {
+    router.replace('/news')
+  }
+}
+
 onMounted(() => {
   if (route.query.news_id) {
     loadNewsData(route.query.news_id)
@@ -110,7 +118,7 @@ onMounted(() => {
       @input="autoResize"
     ></textarea>
     <div class="news-actions">
-      <md-text-button>{{ $t(`buttons.cancel`) }}</md-text-button>
+      <md-text-button @click="goBack">{{ $t(`buttons.cancel`) }}</md-text-button>
       <md-filled-button :disabled="!newsSavable" @click="saveNews">{{
         $t(`buttons.publish`)
       }}</md-filled-button>

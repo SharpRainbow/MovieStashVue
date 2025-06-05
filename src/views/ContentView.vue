@@ -171,7 +171,7 @@ async function rateContent() {
       request = await axios.post(
         `/stars`,
         {
-          content_id: Number(route.params.id),
+          contentId: Number(route.params.id),
           rating: rating,
         }
       )
@@ -291,8 +291,8 @@ onMounted(() => {
         <div class="image-container">
           <img :src="item.image || '/src/assets/images/placeholder.jpg'" alt="person image" />
         </div>
-        <div class="person-name">{{ item.name }}</div>
-        <div class="person-role">{{ item.role }}</div>
+        <div class="person-name"><b>{{ item.name }}</b></div>
+        <div class="person-role">{{ item.description || item.role }}</div>
       </SwiperSlide>
     </Swiper>
     <md-dialog id="rate-dialog" ref="rateDialogRef">
@@ -483,6 +483,9 @@ body {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  gap: 4px;
+  box-sizing: border-box;
+  word-break: break-word;
 }
 
 .image-container {

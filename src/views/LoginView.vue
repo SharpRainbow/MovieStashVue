@@ -3,8 +3,6 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore.js'
-import { toast } from 'vue3-toastify'
-import 'vue3-toastify/dist/index.css'
 import { notifyError } from '@/utils/notifications.js'
 
 const authStore = useAuthStore()
