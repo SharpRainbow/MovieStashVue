@@ -80,7 +80,7 @@ const {
   flex-direction: column;
   align-items: stretch;
   border-radius: 16px;
-  background-color: #272D36;
+  background-color: var(--secondary-color);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   gap: 12px;
   padding: 20px;

@@ -138,16 +138,16 @@ onMounted(() => {
 <style scoped>
 md-tabs {
   --md-primary-tab-container-color: transparent;
-  --md-sys-color-primary: #4a5671;
+  --md-sys-color-primary: var(--icon-color-dark);
   flex-shrink: 0;
 }
 
 md-primary-tab {
-  color: #aed1ff;
+  color: var(--icon-color);
 }
 
 md-linear-progress {
-  --md-linear-progress-active-indicator-color: #4a5671;
+  --md-linear-progress-active-indicator-color: var(--icon-color-dark);
   visibility: collapse;
   flex-shrink: 0;
 }
@@ -170,9 +170,9 @@ body {
 .search-container {
   display: flex;
   align-items: center;
-  background-color: #272d36;
+  background-color: var(--secondary-color);
   padding: 12px 24px;
-  border: 1px solid #4a5671;
+  border: 1px solid var(--icon-color-dark);
   border-radius: 48px;
   margin: 0 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -188,19 +188,19 @@ body {
 }
 
 .search-input::placeholder {
-  color: #888;
+  color: var(--material-grey);
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #4a5671;
+  color: var(--icon-color-dark);
   font-size: 32px;
   cursor: pointer;
 }
 
 .results {
-  background: #272d36;
+  background: var(--secondary-color);
   flex-grow: 1;
   border-radius: 20px;
   margin: 10px 40px;

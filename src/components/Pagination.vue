@@ -65,6 +65,8 @@ function onClickPreviousPage() {
 }
 
 function onClickPage(page) {
+  if (page === props.currentPage)
+    return;
   emit('pagechanged', page);
 }
 
@@ -170,7 +172,7 @@ function isPageActive(page) {
 
 .active {
   background-color: var(--focus-color);
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 </style>

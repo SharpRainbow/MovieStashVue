@@ -1,7 +1,7 @@
 <script setup>
-import { RouterLink, RouterView} from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router'
 import '@material/web/all.js'
-import { computed  } from 'vue'
+import { computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore.js'
 
 const authStore = useAuthStore()
@@ -39,20 +39,20 @@ const accountLink = computed(() => {
       </div>
       <div class="right">
         <RouterLink to="/news">
-        <div class="nav-item">
-          <div class="icon-container">
-            <md-icon slot="icon">newsmode</md-icon>
+          <div class="nav-item">
+            <div class="icon-container">
+              <md-icon slot="icon">newsmode</md-icon>
+            </div>
+            <span class="nav-label">{{ $t(`labels.main.news`) }}</span>
           </div>
-          <span class="nav-label">{{ $t(`labels.main.news`) }}</span>
-        </div>
         </RouterLink>
         <RouterLink :to="accountLink">
-        <div class="nav-item">
-          <div class="icon-container">
-            <md-icon slot="icon">person</md-icon>
+          <div class="nav-item">
+            <div class="icon-container">
+              <md-icon slot="icon">person</md-icon>
+            </div>
+            <span class="nav-label">{{ $t(`labels.main.account`) }}</span>
           </div>
-          <span class="nav-label">{{ $t(`labels.main.account`) }}</span>
-        </div>
         </RouterLink>
       </div>
     </div>
@@ -72,16 +72,16 @@ const accountLink = computed(() => {
           <div class="footer-right">
             <div class="social-icons">
               <a href="https://vk.com" target="_blank">
-                <img src="/src/assets/icons/vk.svg" alt="Vk" width="24" height="24">
+                <img src="/src/assets/icons/vk.svg" alt="Vk" width="24" height="24" />
               </a>
               <a href="https://twitter.com" target="_blank">
-                <img src="/src/assets/icons/x.svg" alt="Twitter" width="24" height="24">
+                <img src="/src/assets/icons/x.svg" alt="Twitter" width="24" height="24" />
               </a>
               <a href="https://telegram.org" target="_blank">
-                <img src="/src/assets/icons/tg.svg" alt="LinkedIn" width="24" height="24">
+                <img src="/src/assets/icons/tg.svg" alt="LinkedIn" width="24" height="24" />
               </a>
               <a href="https://youtube.com" target="_blank">
-                <img src="/src/assets/icons/yt.svg" alt="YouTube" width="24" height="24">
+                <img src="/src/assets/icons/yt.svg" alt="YouTube" width="24" height="24" />
               </a>
             </div>
             <nav class="footer-nav">
@@ -98,7 +98,6 @@ const accountLink = computed(() => {
 </template>
 
 <style scoped>
-
 main {
   margin: 0;
   padding: 0;
@@ -111,8 +110,7 @@ main {
 .nav-rail {
   width: 80px;
   flex-shrink: 0;
-  background-color: #272D36; /* Light blue background */
-  color: #333;
+  background-color: var(--secondary-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -146,12 +144,12 @@ a {
 }
 
 .nav-item:hover .icon-container {
-  background-color: var(--focus-color); /* Slightly darker blue on hover */
+  background-color: var(--focus-color);
 }
 
 .router-link-active .nav-item .icon-container {
   font-variation-settings: 'FILL' 1;
-  background-color: var(--focus-color); /* Distinct blue for the active item */
+  background-color: var(--focus-color);
 }
 
 .nav-label {
@@ -159,11 +157,6 @@ a {
   font-size: 12px;
   color: var(--icon-color);
   font-weight: bold;
-}
-
-.material-icons {
-  font-size: 24px;
-  color: inherit; /* Inherit color to change on active state */
 }
 
 header {
@@ -201,36 +194,30 @@ md-fab {
 }
 
 footer {
-  /*background-color: #333;*/
   color: var(--icon-color);
   padding: 20px;
-  flex-shrink: 0;           /* Prevent the footer from shrinking */
+  flex-shrink: 0;
   position: relative;
-  border-top: 2px solid var(--secondary-color); /* Thin separator line */
+  border-top: 2px solid var(--secondary-color);
 }
 
 .footer-content {
   display: flex;
-  justify-content: space-between; /* Distribute space between the left and right */
+  justify-content: space-between;
   align-items: end;
-  /*align-items: center;*/
-  /*max-width: 1200px;*/
   margin: 0 auto;
 }
 
-/* Left side (copyright) */
 .footer-left p {
   margin: 0;
 }
 
-/* Right side (navigation links + social media icons) */
 .footer-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-/* Footer navigation links */
 .footer-nav {
   display: flex;
   gap: 20px;
@@ -246,7 +233,6 @@ footer {
   text-decoration: underline;
 }
 
-/* Social media icons */
 .social-icons {
   display: flex;
   gap: 10px;
@@ -258,11 +244,10 @@ footer {
 }
 
 .social-icons a:hover img {
-  opacity: 0.8; /* Optional: Add a hover effect on the social media icons */
+  opacity: 0.8;
 }
 
 @media screen and (max-device-width: 480px) {
-
   main {
     flex-direction: column-reverse;
   }
@@ -282,10 +267,12 @@ footer {
     height: auto;
     flex-direction: row;
     justify-content: space-around;
+    padding-bottom: 16px;
   }
 
   #search-btn {
-    position: fixed;
+    position: absolute;
+    padding: 0;
     left: 50%;
     transform: translateX(-50%);
     --md-fab-container-height: 48px;

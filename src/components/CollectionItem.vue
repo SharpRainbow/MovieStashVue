@@ -35,9 +35,9 @@ const props = defineProps({
   align-items: center;
   justify-content: center;
   padding: 20px;
-  border-radius: 16px; /* Rounded corners */
-  background-color: #272D36; /* Background color of the rectangle */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
+  border-radius: 16px;
+  background-color: var(--secondary-color);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
 

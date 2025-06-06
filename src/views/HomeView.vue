@@ -139,7 +139,7 @@ body {
   height: 250px;
   padding: 20px;
   border-radius: 16px;
-  background-color: #272D36;
+  background-color: var(--secondary-color);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
