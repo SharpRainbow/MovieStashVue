@@ -49,9 +49,7 @@ function resetUserList() {
 
 async function unblockUser(user) {
   try {
-    const banResponse = await axios.patch(
-      `/users/${user.id}/unban`
-    )
+    const banResponse = await axios.patch(`/users/${user.id}/unban`)
     if (banResponse.status === 200) {
       notifySuccess(t('notifications.users.unbanned'))
       resetUserList()
@@ -80,20 +78,24 @@ onMounted(() => {
     <div class="users-list">
       <div class="user-item" v-for="user in userItems" :key="user.id">
         <div class="user-container">
-          <h3> {{ user.nickname }} {{ user.email }} </h3>
-          <p>
-            <i18n-t keypath="labels.users.ban_message">
-              <template #date>
-                {{ user.banDate }}
-              </template>
-              <template #reason>
-                <b>{{ user.banReason }}</b>
-              </template>
-            </i18n-t>
-          </p>
-          <md-filled-button @click="showUnblockDialog(user)">
-            {{ $t('buttons.unblock_user') }}
-          </md-filled-button>
+          <div class="user-body">
+            <h3>{{ user.nickname }} {{ user.email }}</h3>
+            <p>
+              <i18n-t keypath="labels.users.ban_message">
+                <template #date>
+                  {{ user.banDate }}
+                </template>
+                <template #reason>
+                  <b>{{ user.banReason }}</b>
+                </template>
+              </i18n-t>
+            </p>
+          </div>
+          <div class="user-actions">
+            <md-filled-button @click="showUnblockDialog(user)">
+              {{ $t('buttons.unblock_user') }}
+            </md-filled-button>
+          </div>
         </div>
       </div>
     </div>
@@ -152,7 +154,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: stretch;
   border-radius: 16px;
-  background-color: #272D36;
+  background-color: var(--secondary-color);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   gap: 12px;
   padding: 20px;
@@ -162,14 +164,42 @@ onMounted(() => {
   margin: 0;
 }
 
-md-filled-button {
-  align-self: end;
-}
-
 .pagination-wrapper {
   display: flex;
   justify-content: center;
   width: 100%;
 }
 
+.user-body {
+  display: flex;
+  flex-direction: column;
+  word-break: break-word;
+  gap: 8px;
+}
+
+.user-actions {
+  display: flex;
+  justify-content: end;
+}
+
+@media screen and (max-width: 480px) {
+
+  .user-container h3 {
+    font-size: 16px;
+  }
+
+  .user-container p {
+    font-size: 14px;
+  }
+
+  .content {
+    padding: 0 12px;
+  }
+
+  .users-list {
+    gap: 12px;
+    padding: 0;
+    border: 0;
+  }
+}
 </style>

@@ -116,8 +116,10 @@ onMounted(() => {
         v-for="item in collectionSearchItems"
         :key="item.id"
         :name="item.name"
-        :date="item.releaseDate"
+        :date="item.releaseDate || item.date"
         :image="item.image"
+        :colored="true"
+        :rating="item.rating"
         @click="router.push(`/${itemTypeUrl}/${item.id}`)"
       >
       </ListItem>

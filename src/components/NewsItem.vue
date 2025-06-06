@@ -126,13 +126,9 @@ const {
   gap: 12px;
 }
 
-md-filled-button {
-  align-self: end;
-}
-
 .news-actions {
   display: flex;
-  align-self: end;
+  justify-content: end;
   gap: 12px;
 }
 

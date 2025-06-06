@@ -25,6 +25,8 @@ md-filled-button {
     --md-sys-color-on-primary: var(--secondary-color);
     --md-filled-button-disabled-container-color: var(--icon-color);
     --md-filled-button-disabled-label-text-color: var(--text-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 md-filled-button md-icon {

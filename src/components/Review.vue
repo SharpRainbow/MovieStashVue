@@ -130,7 +130,7 @@ const { requestAction: showRemoveDialog, confirmAction: confirmRemoval } =
 
 .review-actions {
   display: flex;
-  align-self: end;
+  justify-content: end;
   gap: 12px;
 }
 
