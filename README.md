@@ -1,29 +1,22 @@
 # MovieStashVue
 
-This template should help get you started developing with Vue 3 in Vite.
+### Описание
 
-## Recommended IDE Setup
+Демонстрационная версия веб-интерфейса для взаимодействия с API-сервисом, предоставляющим данные о кинематографе.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### Страницы
 
-## Customize configuration
+Веб-приложение состоит из 5 основных страниц:
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- Главная - содержит список популряного контента, новостей и подборок по жанрам
+- Подборки - содержит список собранных вручную подборок контента
+- Новости - содержит список новостей
+- Аккаунт - содержит информацию об аккаунте и позволяет перейти на страницы для ее изменения
 
-## Project Setup
+Также для всех элементов представленных списков доступна своя страница с дополнительной информацией.
 
-```sh
-npm install
-```
+### Запуск
 
-### Compile and Hot-Reload for Development
+Для запука можно использовать Dockerfile находящийся в данном репозитории. Также, в течении ограниченного временни
+приложение будет доступно по адресу https://168882.msk.web.highserver.ru/.
 
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
