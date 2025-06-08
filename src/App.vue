@@ -262,12 +262,18 @@ footer {
     gap: 24px;
   }
 
+  #main-container {
+    padding-bottom: 56px;
+  }
+
   .nav-rail {
     width: 100%;
+    position: fixed;
+    bottom: 0;
     height: auto;
     flex-direction: row;
     justify-content: space-around;
-    padding-bottom: 16px;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   #search-btn {
