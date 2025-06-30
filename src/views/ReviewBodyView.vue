@@ -13,7 +13,6 @@ const router = useRouter()
 const route = useRoute()
 const reviewData = ref({
   id: 1,
-  image: '/src/assets/images/placeholder.jpg',
   date: '',
   title: '',
   userName: '',

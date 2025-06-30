@@ -289,7 +289,7 @@ onMounted(() => {
         @click="router.push(`/person/${item.id}`)"
       >
         <div class="image-container">
-          <img :src="item.image || '/src/assets/images/placeholder.jpg'" alt="person image" />
+          <img :src="item.image || '/images/placeholder.jpg'" alt="person image" />
         </div>
         <div class="person-name"><b>{{ item.name }}</b></div>
         <div class="person-role">{{ item.description || item.role }}</div>

@@ -6,7 +6,7 @@ import axios from '@/utils/axiosInstance.js'
 const route = useRoute()
 const newData = ref({
   id: 0,
-  image: '/src/assets/images/placeholder.jpg',
+  image: '/images/placeholder.jpg',
   date: '',
   title: '',
   description: '',

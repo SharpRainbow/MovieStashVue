@@ -20,7 +20,7 @@ const props = defineProps({
   },
   image: {
     type: String,
-    default: '/src/assets/images/placeholder.jpg',
+    default: '/images/placeholder.jpg',
   }
 })
 
@@ -42,7 +42,7 @@ const ratingColor = computed(() => {
   <div
     class="list-item-body"
   >
-    <img :src="props.image || '/src/assets/images/placeholder.jpg'" alt="search-image">
+    <img :src="props.image || '/images/placeholder.jpg'" alt="search-image">
     <div class="list-item-data">
       <h3>{{ props.name }}</h3>
       <p>{{ props.date }}</p>

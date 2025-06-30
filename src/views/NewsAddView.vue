@@ -15,7 +15,7 @@ const newsDescription = ref('')
 const imagePreview = computed(() => {
   if (newsImage.value) {
     return URL.canParse(newsImage.value) ? newsImage.value : URL.createObjectURL(newsImage.value)
-  } else return '/src/assets/images/placeholder.jpg'
+  } else return '/images/placeholder.jpg'
 })
 
 const autoResize = (event) => {

@@ -15,7 +15,7 @@ const props = defineProps(['id'])
 const personData = ref({
   id: props.id,
   name: '',
-  image: '/src/assets/images/placeholder.jpg',
+  image: '/images/placeholder.jpg',
   career: '',
   birthday: '',
   death: '',
@@ -50,7 +50,7 @@ onMounted(() => {
   <div class="content">
     <div id="upper-content" class="horizontal-container">
       <div class="img-container">
-        <img id="poster" :src="personData.image || '/src/assets/images/placeholder.jpg'" alt="poster" />
+        <img id="poster" :src="personData.image || '/images/placeholder.jpg'" alt="poster" />
       </div>
       <div class="person-info">
         <h1 id="about-person">{{ personData.name }}</h1>
